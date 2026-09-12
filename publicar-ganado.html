@@ -57,6 +57,10 @@
   .done h2{font-family:'Zilla Slab',serif;color:var(--pasto);margin:12px 0 8px}
   .done p{color:var(--muted);font-size:15px;line-height:1.5}
   .req{color:var(--oro)}
+  .aceptar{background:#fff;border:1.5px solid var(--linea);border-radius:10px;padding:12px 14px;margin:14px 0 4px;display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#3a352c;line-height:1.4;cursor:pointer}
+  .aceptar input{margin-top:2px;flex:none;width:18px;height:18px;accent-color:var(--pasto);cursor:pointer}
+  .aceptar a{color:var(--pasto);font-weight:600}
+  .aceptar.error{border-color:#c62828;background:#fff5f5}
 </style>
 </head>
 <body>
@@ -111,6 +115,10 @@
         <div class="cnt" id="videosCnt">0/3</div><div class="thumbs" id="videosPrev"></div></div>
       <input id="videosInput" type="file" accept="video/*" multiple class="hidden"></div>
 
+    <label class="aceptar" id="aceptaBox">
+      <input type="checkbox" id="acepta">
+      <span>He leído y acepto los <a href="terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a> y la <a href="privacidad.html" target="_blank" rel="noopener">Política de Tratamiento de Datos</a>. Autorizo la publicación de mi aviso y el uso de las fotos y videos aportados para mostrarlo en la Plataforma y en piezas promocionales de TERRAVA.</span>
+    </label>
     <div class="msg err" id="err"></div>
     <button class="btn" id="enviar">Enviar aviso a revisión</button>
   </div>
@@ -196,7 +204,8 @@ $('form').addEventListener('change',saveDraft);
 })();
 
 $('enviar').addEventListener('click', async ()=>{
-  $('err').style.display='none';
+  $('err').style.display='none'; $('aceptaBox').classList.remove('error');
+  if(!$('acepta').checked){ $('err').textContent='Debes aceptar los Términos y la Política de Datos para publicar.'; $('err').style.display='block'; $('aceptaBox').classList.add('error'); $('aceptaBox').scrollIntoView({behavior:'smooth',block:'center'}); return; }
   const catFinal = $('categoria').value==='Otro' ? capFirst($('categoria_otro').value) : $('categoria').value;
   const r={ estado:'Pendiente', tipo:$('tipo').value, sexo:$('sexo').value,
     estado_repro:$('sexo').value==='Hembra'?$('estado_repro').value:'No aplica',
