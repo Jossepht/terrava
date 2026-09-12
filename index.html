@@ -1,14 +1,6 @@
 <!doctype html>
 <html lang="es">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L0EQPQVQ5N"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-L0EQPQVQ5N');
-</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TERRAVA | Ganado y fincas en venta — Mercado rural de Colombia</title>
@@ -98,7 +90,7 @@
   .kind{font-family:'Zilla Slab',serif;font-weight:700;font-size:15px;letter-spacing:.04em;color:var(--pasto);text-transform:uppercase}
   .desc{font-size:14px;color:var(--tierra);font-weight:500;line-height:1.35}
   .meta{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
-  .meta span{overflow-wrap:anywhere;word-break:break-word;padding-left:1.5em;text-indent:-1.5em}
+  .meta span{overflow-wrap:break-word}
   .price{font-family:'Zilla Slab',serif;font-weight:700;font-size:22px;color:var(--oro);line-height:1.15;margin-top:2px;overflow-wrap:break-word}
   .price .pu{font-family:'Inter';font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap}
   .vermas{font-size:12.5px;color:var(--pasto);font-weight:600}
@@ -119,10 +111,13 @@
   .flinks{margin-top:10px;font-size:12px}
   .flinks a{color:#cfe3d6;text-decoration:none;margin:0 6px}
   /* Modal */
-  .modal{position:fixed;inset:0;background:rgba(20,15,10,.78);display:none;z-index:50;overflow:auto;padding:16px}
+  .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(20,15,10,.78);display:none;z-index:50;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0}
   .modal.open{display:block}
-  .mbox{max-width:600px;margin:20px auto;background:var(--paper);border-radius:16px;overflow:hidden;position:relative}
-  .mclose{position:absolute;top:10px;right:10px;z-index:3;width:34px;height:34px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:16px;cursor:pointer}
+  .mbox{max-width:600px;margin:0 auto;background:var(--paper);border-radius:0;overflow:visible;position:relative;min-height:100%}
+  @media(min-width:640px){.mbox{margin:20px auto;border-radius:16px;min-height:auto}}
+  .mclose{position:sticky;top:0;z-index:3;width:100%;background:rgba(20,15,10,.85);color:#fff;border:none;font:600 14px/1 'Inter',sans-serif;padding:13px 16px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
+  .mclose::before{content:'←';font-size:18px}
+  .mclosebottom{display:block;width:100%;background:var(--paper-2,#f0ead8);border:1px solid var(--linea);border-radius:10px;padding:13px;font:600 14px 'Manrope','Inter',sans-serif;color:var(--muted-2,#5c5648);cursor:pointer;margin-top:14px;text-align:center}
   .carousel{position:relative;background:#111;aspect-ratio:4/3;display:grid;place-items:center}
   .carousel img{width:100%;height:100%;object-fit:contain;display:none}
   .carbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:#fff;border:none;width:42px;height:42px;border-radius:50%;font-size:24px;cursor:pointer;display:none}
@@ -198,7 +193,7 @@
 </div></footer>
 
 <div class="modal" id="modal"><div class="mbox">
-  <button class="mclose" id="mclose">✕</button>
+  <button class="mclose" id="mclose">Volver al catálogo</button>
   <div class="carousel" id="carousel">
     <img id="mimg" alt="Foto">
     <button class="carbtn prev" id="mprev">‹</button>
@@ -359,8 +354,10 @@ function openModal(a){
         ? `<div class="wa vendido-btn" style="flex:1">✅ Este aviso ya fue vendido</div>`
         : `<a class="wa" href="https://wa.me/${waNum(a.telefono)}?text=${msg}" target="_blank" rel="noopener">Contactar por WhatsApp</a>`}
       <a class="share" href="https://wa.me/?text=${shareTxt}" target="_blank" rel="noopener">📤 Compartir</a>
-    </div>`;
+    </div>
+    <button class="mclosebottom" onclick="closeModal()">← Volver al catálogo</button>`;
   $('modal').classList.add('open'); document.body.style.overflow='hidden';
+  $('modal').scrollTop=0;
   history.replaceState(null,'',location.pathname+'#'+a.codigo);
 }
 function closeModal(){ $('modal').classList.remove('open'); document.body.style.overflow=''; $('minfo').innerHTML=''; history.replaceState(null,'',location.pathname); }
