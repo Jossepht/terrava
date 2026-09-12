@@ -326,7 +326,7 @@ function openModal(a){
   const bov=esBovino(a);
   const cual=bov?'el ganado':'la propiedad';
   const msg=encodeURIComponent(`Hola, buen día. Vi tu aviso ${a.codigo} en TERRAVA (Mercado rural de Colombia) y estoy interesado(a) en ${cual}. ¿Podríamos hablar para conocer más detalles?`);
-  const shareUrl=location.origin+location.pathname+'#'+a.codigo;
+  const shareUrl='https://terrava.com.co/#'+a.codigo;
   const shareTxt=encodeURIComponent(`Mira este aviso en Terrava 🐄🏡\n${a.codigo}\n${shareUrl}`);
   let cabeza, filas;
   if(bov){
@@ -356,11 +356,12 @@ function openModal(a){
       <a class="share" href="https://wa.me/?text=${shareTxt}" target="_blank" rel="noopener">📤 Compartir</a>
     </div>
     <button class="mclosebottom" onclick="closeModal()">← Volver al catálogo</button>`;
-  $('modal').classList.add('open'); document.body.style.overflow='hidden';
+  $('modal').classList.add('open');
+  window._scrollY=window.scrollY; document.body.style.position='fixed'; document.body.style.top=`-${window._scrollY}px`; document.body.style.width='100%';
   $('modal').scrollTop=0;
   history.replaceState(null,'',location.pathname+'#'+a.codigo);
 }
-function closeModal(){ $('modal').classList.remove('open'); document.body.style.overflow=''; $('minfo').innerHTML=''; history.replaceState(null,'',location.pathname); }
+function closeModal(){ $('modal').classList.remove('open'); document.body.style.position=''; document.body.style.top=''; document.body.style.width=''; window.scrollTo(0,window._scrollY||0); $('minfo').innerHTML=''; history.replaceState(null,'',location.pathname); }
 $('mclose').onclick=closeModal;
 $('modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
