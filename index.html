@@ -113,10 +113,11 @@
   /* Modal */
   .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(20,15,10,.78);display:none;z-index:50;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0}
   .modal.open{display:block}
-  .mbox{max-width:600px;margin:0 auto;background:var(--paper);border-radius:0;overflow:visible;position:relative;min-height:100%}
+  .mbox{max-width:600px;margin:0 auto;background:var(--paper);border-radius:0;overflow:visible;position:relative;padding-top:44px}
   @media(min-width:640px){.mbox{margin:20px auto;border-radius:16px;min-height:auto}}
-  .mclose{position:sticky;top:0;z-index:3;width:100%;background:rgba(20,15,10,.85);color:#fff;border:none;font:600 14px/1 'Inter',sans-serif;padding:13px 16px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
+  .mclose{position:fixed;top:0;left:0;right:0;z-index:55;max-width:600px;margin:0 auto;background:rgba(20,15,10,.92);color:#fff;border:none;font:600 14px/1 'Inter',sans-serif;padding:13px 16px;cursor:pointer;text-align:left;display:none;align-items:center;gap:8px}
   .mclose::before{content:'←';font-size:18px}
+  .modal.open .mclose{display:flex}
   .mclosebottom{display:block;width:100%;background:var(--paper-2,#f0ead8);border:1px solid var(--linea);border-radius:10px;padding:13px;font:600 14px 'Manrope','Inter',sans-serif;color:var(--muted-2,#5c5648);cursor:pointer;margin-top:14px;text-align:center}
   .carousel{position:relative;background:#111;aspect-ratio:4/3;display:grid;place-items:center}
   .carousel img{width:100%;height:100%;object-fit:contain;display:none}
