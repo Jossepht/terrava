@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TERRAVA — Panel de administración</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#FAF6EC;--pasto:#22563E;--pasto-dk:#163b2a;--oro:#C6892B;--oro-soft:#E8B84B;
+    --tierra:#241f18;--linea:#E2D8C2;--muted:#726a5b;--wa:#25D366;--rojo:#c0392b;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--tierra);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  header{background:var(--pasto);color:#fdfbf4;padding:16px 0;border-bottom:4px solid var(--oro)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+  .hrow{display:flex;align-items:center;gap:12px}
+  .stamp{width:40px;height:40px;border:2.5px solid var(--oro-soft);border-radius:50%;display:grid;place-items:center;font-family:'Zilla Slab',serif;font-weight:700;font-size:22px;color:var(--oro-soft);flex:none}
+  .htitle h1{font-family:'Zilla Slab',serif;letter-spacing:.1em;margin:0;font-size:20px}
+  .htitle p{margin:2px 0 0;font-size:11.5px;color:#cfe3d6}
+  .logout{margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.35);color:#eaf1ec;font:600 12.5px 'Inter';padding:8px 13px;border-radius:8px;cursor:pointer}
+  /* Login */
+  .login{max-width:380px;margin:60px auto;background:#fff;border:1px solid var(--linea);border-radius:16px;padding:26px}
+  .login h2{font-family:'Zilla Slab',serif;color:var(--pasto);margin:0 0 4px}
+  .login p{color:var(--muted);font-size:13.5px;margin:0 0 18px}
+  label{display:block;font-weight:600;font-size:13px;margin-bottom:6px;color:var(--pasto-dk)}
+  input{width:100%;padding:12px 13px;border:1px solid var(--linea);border-radius:10px;font:500 15px 'Inter';margin-bottom:14px}
+  input:focus{outline:2px solid var(--oro-soft);border-color:var(--oro)}
+  .btn{width:100%;background:var(--pasto);color:#fff;border:none;border-radius:11px;padding:13px;font:700 15px 'Inter';cursor:pointer}
+  .btn:hover{background:var(--pasto-dk)} .btn:disabled{opacity:.6}
+  .err{background:#fdeceb;color:#a3271d;padding:10px;border-radius:9px;font-size:13.5px;margin-bottom:12px;display:none}
+  /* Panel */
+  .panel{display:none;padding:20px 0 60px}
+  .summary{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:14.5px}
+  .summary b{color:var(--pasto)}
+  .tabs{display:flex;gap:8px;margin-bottom:16px}
+  .tab{flex:1;background:#fff;border:1.5px solid var(--linea);color:var(--pasto);font:700 14px 'Inter';padding:11px;border-radius:10px;cursor:pointer}
+  .tab.active{background:var(--oro);border-color:var(--oro);color:#241a08}
+  .empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:15px}
+  .item{background:#fff;border:1px solid var(--linea);border-radius:14px;overflow:hidden;margin-bottom:18px}
+  .item .top{padding:14px 15px 0}
+  .codigo{display:inline-block;font:700 11px 'Inter',monospace;color:#8a5a13;background:#f6e7c8;padding:3px 9px;border-radius:5px}
+  .kind{font-family:'Zilla Slab',serif;font-weight:700;color:var(--pasto);font-size:16px;margin:8px 0 3px;text-transform:uppercase}
+  .desc{font-size:14.5px;font-weight:500;margin-bottom:8px}
+  .rows{font-size:13.5px;color:var(--tierra);display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+  .rows .tel{font-weight:700;color:var(--pasto)}
+  .cnt{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+  .cnt.warn{color:#b06a00;font-weight:600}
+  .obs{background:var(--paper);border-radius:9px;padding:10px;font-size:13.5px;margin-bottom:10px;white-space:pre-line}
+  .media{display:flex;flex-wrap:wrap;gap:7px;padding:0 15px 12px}
+  .media img{width:78px;height:78px;object-fit:cover;border-radius:8px;border:1px solid var(--linea);cursor:pointer}
+  .media video{width:120px;height:78px;object-fit:cover;border-radius:8px;background:#000}
+  .actions{display:flex;gap:8px;padding:12px 15px;border-top:1px solid var(--linea);flex-wrap:wrap}
+  .actions button{flex:1;min-width:100px;border:none;border-radius:9px;padding:11px;font:700 13.5px 'Inter';cursor:pointer}
+  .ap{background:var(--wa);color:#fff}.re{background:#fff;border:1.5px solid var(--rojo);color:var(--rojo)}.bl{background:#fff;border:1.5px solid #7a5c00;color:#7a5c00}
+  .notify{background:var(--wa);color:#fff;border:none;border-radius:9px;padding:12px;font:700 13.5px 'Inter';text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px;flex:1;min-width:180px}
+  .status{flex-basis:100%;font-weight:700;color:var(--pasto);margin-bottom:6px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--pasto);color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;display:none;z-index:60}
+</style>
+</head>
+<body>
+<header><div class="wrap hrow">
+  <div class="stamp">T</div>
+  <div class="htitle"><h1>TERRAVA</h1><p>Panel de administración</p></div>
+  <button class="logout" id="logout" style="display:none">Cerrar sesión</button>
+</div></header>
+
+<div class="wrap">
+  <!-- Login -->
+  <div class="login" id="login">
+    <h2>Ingreso de administrador</h2>
+    <p>Entra con tu correo y contraseña de administrador.</p>
+    <div class="err" id="loginErr"></div>
+    <label>Correo</label><input id="email" type="email" autocomplete="username" placeholder="tucorreo@ejemplo.com">
+    <label>Contraseña</label><input id="pass" type="password" autocomplete="current-password" placeholder="••••••••">
+    <button class="btn" id="entrar">Entrar</button>
+  </div>
+
+  <!-- Panel -->
+  <div class="panel" id="panel">
+    <div class="summary" id="summary">Cargando pendientes…</div>
+    <div class="tabs">
+      <button class="tab active" data-cat="bovinos" id="tabB">🐄 Bovinos (0)</button>
+      <button class="tab" data-cat="propiedades" id="tabP">🏡 Propiedades (0)</button>
+      <button class="tab" data-cat="vigencia" id="tabV">⏰ Por vencer (0)</button>
+      <button class="tab" data-cat="buscar" id="tabS">🔎 Buscar</button>
+    </div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+const waNum=t=>{ t=String(t||'').replace(/\D/g,''); return t.length===10?'57'+t:t; };
+let AV=[], PR=[], cat='bovinos';
+
+function toast(t){ const el=$('toast'); el.textContent=t; el.style.display='block'; setTimeout(()=>el.style.display='none',2600); }
+
+// ---- Sesión ----
+async function initSesion(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session) mostrarPanel(); else mostrarLogin();
+}
+function mostrarLogin(){ $('login').style.display='block'; $('panel').style.display='none'; $('logout').style.display='none'; }
+function mostrarPanel(){ $('login').style.display='none'; $('panel').style.display='block'; $('logout').style.display='inline-block'; cargar(); }
+
+$('entrar').addEventListener('click', async ()=>{
+  $('loginErr').style.display='none'; $('entrar').disabled=true; $('entrar').textContent='Entrando…';
+  const { error }=await sb.auth.signInWithPassword({ email:$('email').value.trim(), password:$('pass').value });
+  $('entrar').disabled=false; $('entrar').textContent='Entrar';
+  if(error){ $('loginErr').textContent='No se pudo entrar: '+error.message; $('loginErr').style.display='block'; return; }
+  mostrarPanel();
+});
+$('pass').addEventListener('keydown',e=>{ if(e.key==='Enter') $('entrar').click(); });
+$('logout').addEventListener('click', async ()=>{ await sb.auth.signOut(); mostrarLogin(); });
+
+// ---- Datos ----
+async function cargar(){
+  $('summary').textContent='Cargando pendientes…'; $('list').innerHTML='';
+  try{
+    const [a,p]=await Promise.all([
+      sb.from('avisos').select('*').order('fecha',{ascending:true}),
+      sb.from('propiedades').select('*').order('fecha',{ascending:true})
+    ]);
+    if(a.error) throw a.error; if(p.error) throw p.error;
+    AV=a.data||[]; PR=p.data||[];
+    const pb=AV.filter(x=>x.estado==='Pendiente').length, pp=PR.filter(x=>x.estado==='Pendiente').length;
+    $('tabB').textContent=`🐄 Bovinos (${pb})`; $('tabP').textContent=`🏡 Propiedades (${pp})`;
+    $('tabV').textContent=`⏰ Por vencer (${vigenciaLista().length})`;
+    $('summary').innerHTML= (pb+pp)? `Tienes <b>${pb+pp}</b> publicación(es) esperando revisión.` : '✅ No hay publicaciones pendientes por ahora.';
+    render();
+  }catch(err){ $('summary').textContent='Error al cargar: '+(err.message||err); }
+}
+function veces(tel){ const t=String(tel||''); return AV.filter(x=>x.telefono===t).length + PR.filter(x=>x.telefono===t).length; }
+
+function diasRestantes(a){ if(!a.vence) return 999; return Math.floor((new Date(a.vence).getTime()-Date.now())/86400000); }
+function vigenciaLista(){
+  const av=AV.filter(x=>x.estado==='Aprobado'&&diasRestantes(x)<=7).map(a=>({a,tabla:'avisos',c:'bovinos'}));
+  const pr=PR.filter(x=>x.estado==='Aprobado'&&diasRestantes(x)<=7).map(a=>({a,tabla:'propiedades',c:'propiedades'}));
+  return [...av,...pr].sort((x,y)=>diasRestantes(x.a)-diasRestantes(y.a));
+}
+function render(){
+  if(cat==='vigencia'){ renderVigencia(); return; }
+  if(cat==='buscar'){ renderBuscar(); return; }
+  const items=(cat==='bovinos'?AV:PR).filter(x=>x.estado==='Pendiente');
+  if(!items.length){ $('list').innerHTML='<div class="empty">No hay '+(cat==='bovinos'?'avisos':'propiedades')+' pendientes. 🎉</div>'; return; }
+  $('list').innerHTML=items.map(a=>tarjeta(a,cat)).join('');
+}
+function renderVigencia(){
+  const items=vigenciaLista();
+  if(!items.length){ $('list').innerHTML='<div class="empty">Ningún aviso por vencer. Catálogo fresco. 🌿</div>'; return; }
+  $('list').innerHTML='<div class="summary" style="margin-bottom:16px">Estos avisos ya cumplieron su tiempo (ganado 30 días · propiedades 45). Pregúntale al vendedor si sigue disponible, y <b>renueva</b> o <b>retira</b>.</div>'+items.map(it=>tarjetaVigencia(it.a,it.tabla,it.c)).join('');
+}
+function tarjetaVigencia(a,tabla,c){
+  const dias=diasRestantes(a), plazo=tabla==='avisos'?30:45;
+  const estadoTxt = dias<0 ? `<span style="color:#c0392b;font-weight:700">⚠️ Venció hace ${-dias} día(s)</span>` : `<span style="color:#b06a00;font-weight:700">Vence en ${dias} día(s)</span>`;
+  const titulo = c==='bovinos' ? `Ganado ${a.tipo||''}` : `${a.tipo||'Propiedad'}`;
+  const fotos=a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const foto = fotos[0]?`<img src="${fotos[0]}" style="width:58px;height:58px;object-fit:cover;border-radius:8px;border:1px solid var(--linea);flex:none">`:'';
+  const tel=waNum(a.telefono);
+  const msg=encodeURIComponent(`Hola, soy el administrador de TERRAVA. Tu aviso ${a.codigo} lleva un tiempo publicado. ¿Sigue disponible? Si ya lo vendiste lo retiramos; si sigue en venta lo renovamos por ${plazo} días más. ¡Gracias!`);
+  return `<div class="item" id="item-${tabla}-${a.id}">
+    <div class="top" style="display:flex;gap:12px;align-items:flex-start">${foto}
+      <div style="flex:1">
+        <span class="codigo">${a.codigo||''}</span>
+        <div class="kind" style="font-size:14px;margin:6px 0 4px">${titulo} · ${a.municipio||''}, ${a.departamento||''}</div>
+        <div class="rows"><div>${estadoTxt}</div><div class="tel">📱 ${a.telefono||''}</div></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="ap" onclick="renovar('${tabla}',${a.id})">🔄 Renovar ${plazo} días</button>
+      ${tel?`<a class="notify" href="https://wa.me/${tel}?text=${msg}" target="_blank" rel="noopener">📲 Preguntar</a>`:''}
+      <button class="bl" onclick="retirar('${tabla}',${a.id})">🗑️ Retirar</button>
+    </div>
+  </div>`;
+}
+async function renovar(tabla,id){
+  const dias=tabla==='avisos'?30:45;
+  const nueva=new Date(Date.now()+dias*86400000).toISOString();
+  const { error }=await sb.from(tabla).update({vence:nueva}).eq('id',id);
+  if(error){ toast('Error: '+error.message); return; }
+  toast('🔄 Renovado '+dias+' días'); cargar();
+}
+async function retirar(tabla,id){
+  if(!confirm('¿Retirar este aviso del catálogo? Dejará de verse públicamente.')) return;
+  const { error }=await sb.from(tabla).update({estado:'Vencido'}).eq('id',id);
+  if(error){ toast('Error: '+error.message); return; }
+  toast('Aviso retirado'); cargar();
+}
+async function eliminar(tabla,id,codigo){
+  if(!confirm('¿ELIMINAR PERMANENTEMENTE el aviso '+codigo+'?\n\nEsta acción NO se puede deshacer. El aviso y sus datos se borran para siempre.')) return;
+  const { error }=await sb.from(tabla).delete().eq('id',id);
+  if(error){ toast('Error: '+error.message); return; }
+  toast('🗑️ Aviso eliminado'); cargar();
+}
+// ---- Buscar y gestionar cualquier aviso ----
+let ultimaBusqueda='';
+function estadoBadge(e){
+  const map={'Aprobado':['#1c7c4a','#e3f5ea'],'Pendiente':['#8a5a13','#fdf1d6'],'Rechazado':['#c0392b','#fdeceb'],'Vencido':['#555','#eeeeee']};
+  const [col,bg]=map[e]||['#555','#eeeeee'];
+  return `<span style="background:${bg};color:${col};font-weight:700;font-size:11px;padding:3px 9px;border-radius:6px">${e||'?'}</span>`;
+}
+function renderBuscar(){
+  $('list').innerHTML=`
+    <div style="margin-bottom:16px">
+      <input id="buscarInput" value="${ultimaBusqueda.replace(/"/g,'&quot;')}" placeholder="Escribe el código (ej: TRB-ARA-000109) o un número de teléfono"
+        style="width:100%;padding:13px 14px;border:1px solid var(--linea);border-radius:10px;font:500 15px 'Inter'">
+      <div class="cnt" style="margin-top:6px">Busca por código de aviso o por número de teléfono, y gestiona el aviso.</div>
+    </div>
+    <div id="buscarResultados"></div>`;
+  $('buscarInput').addEventListener('input',()=>{ ultimaBusqueda=$('buscarInput').value; doBuscar(); });
+  if(ultimaBusqueda.trim()) doBuscar(); else $('buscarInput').focus();
+}
+function doBuscar(){
+  const q=(ultimaBusqueda||'').trim().toLowerCase();
+  const cont=$('buscarResultados'); if(!cont) return;
+  if(q.length<2){ cont.innerHTML='<div class="empty">Escribe al menos 2 caracteres.</div>'; return; }
+  const matches=[
+    ...AV.filter(a=>(a.codigo||'').toLowerCase().includes(q)||String(a.telefono||'').includes(q)).map(a=>({a,tabla:'avisos',c:'bovinos'})),
+    ...PR.filter(a=>(a.codigo||'').toLowerCase().includes(q)||String(a.telefono||'').includes(q)).map(a=>({a,tabla:'propiedades',c:'propiedades'}))
+  ];
+  if(!matches.length){ cont.innerHTML='<div class="empty">No se encontró ningún aviso con "'+q+'".</div>'; return; }
+  cont.innerHTML=matches.map(m=>tarjetaGestion(m.a,m.tabla,m.c)).join('');
+}
+function tarjetaGestion(a,tabla,c){
+  const fotos=a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const foto=fotos[0]?`<img src="${fotos[0]}" style="width:58px;height:58px;object-fit:cover;border-radius:8px;border:1px solid var(--linea);flex:none">`:'';
+  const titulo = c==='bovinos'?`Ganado ${a.tipo||''}`:`${a.tipo||'Propiedad'}`;
+  const n=veces(a.telefono);
+  return `<div class="item" id="item-${tabla}-${a.id}">
+    <div class="top" style="display:flex;gap:12px;align-items:flex-start">${foto}
+      <div style="flex:1">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="codigo">${a.codigo||''}</span>${estadoBadge(a.estado)}</div>
+        <div class="kind" style="font-size:14px;margin:6px 0 4px">${titulo} · ${a.municipio||''}, ${a.departamento||''}</div>
+        <div class="rows"><div class="tel">📱 ${a.telefono||''}</div><div class="cnt">Este número ha publicado ${n} vez(ces)</div></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="ap" onclick="aprobar('${tabla}',${a.id},'${a.telefono||''}','${a.codigo||''}','${a.edit_token||''}')">✅ Aprobar/Publicar</button>
+      <a class="bl" style="text-decoration:none;display:flex;align-items:center;justify-content:center" href="editar.html?tabla=${tabla}&c=${encodeURIComponent(a.codigo||'')}&t=${a.edit_token||''}" target="_blank" rel="noopener">✏️ Editar</a>
+      <button class="ap" style="background:#1c7c4a" onclick="marcarVendido('${tabla}',${a.id})">🏷️ Vendido</button>
+      <button class="bl" onclick="retirar('${tabla}',${a.id})">🗑️ Retirar</button>
+      <button class="bl" onclick="bloquear('${a.telefono||''}')">🚫 Bloquear</button>
+      <button class="re" onclick="eliminar('${tabla}',${a.id},'${a.codigo||''}')">❌ Eliminar</button>
+    </div>
+  </div>`;
+}
+function tarjeta(a,c){
+  const fotos=a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const videos=a.videos?a.videos.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const n=veces(a.telefono);
+  const tabla=c==='bovinos'?'avisos':'propiedades';
+  let cabeza, filas, precio;
+  const fmt=v=>'$'+(Number(v)||0).toLocaleString('es-CO');
+  if(c==='bovinos'){
+    cabeza=`<div class="kind">Venta · Ganado ${a.tipo||''}</div><div class="desc">${a.sexo||''}${(a.sexo==='Hembra'&&a.estado_repro&&a.estado_repro!=='No aplica')?' ('+a.estado_repro+')':''} · ${a.categoria||''} · ${a.raza||''}</div>`;
+    filas=`<div>📍 ${a.municipio||''}, ${a.departamento||''}</div><div>⚖️ ${a.peso_kg||''} kg · ${a.edad||''} ${(a.edad_unidad||'').toLowerCase()} · ${a.cantidad||''} animales</div>`;
+    precio=`${fmt(a.precio)} · ${a.precio_modo||''}`;
+  }else{
+    cabeza=`<div class="kind">${a.negocio||'Venta'} · ${a.tipo||'Propiedad'}</div><div class="desc">${a.area||''} ${a.area_unidad||''}</div>`;
+    filas=`<div>📍 ${a.municipio||''}${a.vereda?', '+a.vereda:''}, ${a.departamento||''}</div>`;
+    precio=`${fmt(a.precio)} · ${a.precio_modo||''}`;
+  }
+  return `<div class="item" id="item-${tabla}-${a.id}">
+    <div class="top">
+      <span class="codigo">${a.codigo||''}</span>
+      ${cabeza}
+      <div class="rows">${filas}<div>💰 ${precio}</div><div class="tel">📱 ${a.telefono||'(sin número)'}</div></div>
+      <div class="cnt ${n>1?'warn':''}">Este número ha publicado ${n} vez(ces) en Terrava.</div>
+      ${(a.observaciones&&a.observaciones!=='Ninguna')?`<div class="obs"><b>Observaciones:</b> ${a.observaciones}</div>`:''}
+    </div>
+    <div class="media">
+      ${fotos.map(u=>`<img src="${u}" onclick="window.open('${u}','_blank')">`).join('')}
+      ${videos.map(u=>`<video src="${u}" controls></video>`).join('')}
+    </div>
+    <div class="actions">
+      <button class="ap" onclick="aprobar('${tabla}',${a.id},'${a.telefono||''}','${a.codigo||''}','${a.edit_token||''}')">✅ Aprobar</button>
+      <button class="re" onclick="rechazar('${tabla}',${a.id},'${a.telefono||''}','${a.codigo||''}','${a.edit_token||''}')">❌ Rechazar</button>
+      <button class="bl" onclick="bloquear('${a.telefono||''}')">🚫 Bloquear</button>
+    </div>
+  </div>`;
+}
+
+function msgAprobado(codigo,link){
+  let t=`¡Tu aviso ${codigo} fue APROBADO y ya está publicado en TERRAVA! 🎉`;
+  if(link) t+=`\nCuando lo vendas, márcalo (o edítalo) aquí 👉 ${link}`;
+  return encodeURIComponent(t);
+}
+function msgRechazado(codigo,motivo,link){
+  let t=`Hola, soy el administrador de TERRAVA. Tu aviso ${codigo} no fue aprobado.\nMotivo: ${motivo}\n`;
+  if(link) t+=`Corrígelo aquí sin volver a montarlo 👉 ${link}\nCuando termines, dale "Enviar a revisión" y lo revisamos de nuevo.`;
+  else t+=`Puedes corregirlo y volver a publicarlo. ¡Gracias!`;
+  return encodeURIComponent(t);
+}
+function editLink(tabla,codigo,token){ return token ? `${location.origin}/editar.html?tabla=${tabla}&c=${encodeURIComponent(codigo)}&t=${token}` : ''; }
+
+function hecho(tabla,id,estadoTxt,telNorm,msgEnc){
+  const el=document.getElementById(`item-${tabla}-${id}`); if(!el) return;
+  const act=el.querySelector('.actions');
+  const waLink = telNorm
+    ? `<a class="notify" href="https://wa.me/${telNorm}?text=${msgEnc}" target="_blank" rel="noopener">📲 Avisar al vendedor por WhatsApp</a>`
+    : `<div class="cnt" style="flex-basis:100%">Este aviso no tiene número para avisar.</div>`;
+  act.innerHTML = `<div class="status">${estadoTxt}</div>${waLink}<button class="bl" onclick="quitar('${tabla}',${id})">Listo, siguiente</button>`;
+}
+function quitar(tabla,id){ const el=document.getElementById(`item-${tabla}-${id}`); if(el) el.remove(); cargar(); }
+
+async function aprobar(tabla,id,tel,codigo,token){
+  const { error }=await sb.from(tabla).update({estado:'Aprobado'}).eq('id',id);
+  if(error){ toast('Error: '+error.message); return; }
+  toast('✅ Aprobado y publicado');
+  hecho(tabla,id,'✅ Aprobado y publicado en el catálogo', waNum(tel), msgAprobado(codigo, editLink(tabla,codigo,token)));
+}
+async function marcarVendido(tabla,id){
+  if(!confirm('¿Marcar este aviso como VENDIDO?\n\nSe mostrará con el sello "¡VENDIDO!" y bajará solo del catálogo en 3 días.')) return;
+  const { error }=await sb.from(tabla).update({estado:'Vendido', vendido_fecha:new Date().toISOString()}).eq('id',id);
+  if(error){ toast('Error: '+error.message); return; }
+  toast('🏷️ Marcado como vendido'); cargar();
+}
+async function rechazar(tabla,id,tel,codigo,token){
+  const motivo=prompt('Motivo del rechazo (se le enviará al vendedor para que corrija):');
+  if(motivo===null) return;
+  const { error }=await sb.from(tabla).update({estado:'Rechazado'}).eq('id',id);
+  if(error){ toast('Error: '+error.message); return; }
+  toast('Aviso rechazado');
+  hecho(tabla,id,'❌ Rechazado — avísale el motivo:', waNum(tel), msgRechazado(codigo,motivo||'(sin especificar)', editLink(tabla,codigo,token)));
+}
+async function bloquear(tel){
+  if(!tel){ toast('Ese aviso no tiene número'); return; }
+  if(!confirm('¿Bloquear el número '+tel+'? No podrá publicar más hasta que lo desbloquees.')) return;
+  const motivo=prompt('Motivo del bloqueo (opcional):')||'';
+  const { error }=await sb.from('bloqueados').insert({telefono:tel, motivo});
+  if(error){ toast(error.message.includes('duplicate')?'Ese número ya estaba bloqueado':'Error: '+error.message); return; }
+  toast('🚫 Número bloqueado');
+}
+
+document.querySelector('.tabs').addEventListener('click',e=>{ const t=e.target.closest('.tab'); if(!t)return;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); cat=t.dataset.cat; render(); });
+
+initSesion();
+</script>
+<!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "1fa2be8efc174877a855c1e6dad7ce29"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
