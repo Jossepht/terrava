@@ -234,13 +234,8 @@ function precioTxt(a){
 }
 const fotosDe=a=>a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
 const videosDe=a=>a.videos?a.videos.split(',').map(s=>s.trim()).filter(Boolean):[];
-// Miniatura vía Transformaciones de Supabase Pro (solo width, sin recortar ni bajar calidad)
-function miniUrl(url,w){
-  if(!url) return '';
-  const m=url.match(/^(https:\/\/[^/]+\/storage\/v1)\/object\/public\/(.+)$/);
-  if(!m) return url;
-  return `${m[1]}/render/image/public/${m[2]}?width=${w}`;
-}
+// Miniatura: temporalmente devuelve la original (se revirtió la transformación; se probará luego con calma)
+function miniUrl(url,w){ return url||''; }
 const waNum=t=>{ t=String(t||'').replace(/\D/g,''); return t.length===10?'57'+t:t; };
 function haceCuanto(fecha){
   if(!fecha) return '';
@@ -264,7 +259,7 @@ function placeholder(icon){ return `<div class="ph"><div class="ic">${icon}</div
 function fotoBox(a,icon){
   const fotos=fotosDe(a); const cls=fotos[0]?'photo hasimg':'photo';
   const ribbon=a.estado==='Vendido'?'<div class="vendido-ribbon">✅ VENDIDO</div>':'';
-  const img=fotos[0]?`<img src="${miniUrl(fotos[0],400)}" loading="lazy" decoding="async" alt="" onerror="this.onerror=null;this.src='${fotos[0]}'">`:'';
+  const img=fotos[0]?`<img src="${miniUrl(fotos[0],400)}" loading="lazy" decoding="async" alt="">`:'';
   return `<div class="${cls}">${img}${ribbon}${placeholder(icon)}<div class="fotos">📸 ${fotos.length} fotos</div>`;
 }
 function botonContacto(a,msg){
@@ -352,7 +347,7 @@ document.addEventListener('click',()=>$('pubMenu').classList.remove('open'));
 // ---- Modal ----
 let mFotos=[], mIdx=0;
 function showImg(){ const has=mFotos.length>0; $('mimg').style.display=has?'block':'none';
-  if(has){ const src=miniUrl(mFotos[mIdx],800), orig=mFotos[mIdx]; $('mimg').onerror=()=>{ $('mimg').onerror=null; $('mimg').src=orig; }; $('mimg').src=src; $('cidx').textContent=`${mIdx+1} / ${mFotos.length}`; } else $('cidx').textContent='Sin fotos';
+  if(has){ $('mimg').src=miniUrl(mFotos[mIdx],800); $('cidx').textContent=`${mIdx+1} / ${mFotos.length}`; } else $('cidx').textContent='Sin fotos';
   const multi=mFotos.length>1; $('mprev').style.display=$('mnext').style.display=multi?'block':'none'; }
 $('mprev').onclick=()=>{ mIdx=(mIdx-1+mFotos.length)%mFotos.length; showImg(); };
 $('mnext').onclick=()=>{ mIdx=(mIdx+1)%mFotos.length; showImg(); };
