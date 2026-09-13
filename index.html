@@ -74,15 +74,20 @@
     .tag .hole{width:5px;height:5px}
   }
   .state{padding:44px 18px;text-align:center;color:var(--muted);font-size:15px;line-height:1.5}.state b{color:var(--pasto)}
+  .sentinel{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+  .sentinel.loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid var(--linea);border-top-color:var(--oro);border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle;margin-right:8px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .fin{padding:26px 18px;text-align:center;color:var(--muted);font-size:13px;font-style:italic}
   .card{background:#fff;border:1px solid var(--linea);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(36,31,24,.04);cursor:pointer;transition:box-shadow .15s}
   .card:hover{box-shadow:0 4px 14px rgba(36,31,24,.12)}
-  .photo{aspect-ratio:16/10;background:radial-gradient(120% 100% at 50% 0%, #35744f 0%, #1c4b34 72%);background-size:cover;background-position:center;position:relative;display:grid;place-items:center;color:#bfe0c9}
+  .photo{aspect-ratio:16/10;background:radial-gradient(120% 100% at 50% 0%, #35744f 0%, #1c4b34 72%);position:relative;display:grid;place-items:center;color:#bfe0c9;overflow:hidden}
+  .photo>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1}
   .ph{display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.85}
   .ph .ic{font-size:46px;opacity:.4}
   .ph .txt{font-size:11.5px;letter-spacing:.05em;color:#a9cbb6}
   .photo.hasimg .ph{display:none}
-  .photo .fotos{position:absolute;bottom:9px;right:10px;background:rgba(0,0,0,.42);color:#fff;font-size:11px;font-weight:600;padding:4px 8px;border-radius:999px}
-  .tag{position:absolute;top:11px;left:11px;display:flex;align-items:center;gap:6px;background:var(--oro);color:#241a08;font:700 11.5px/1 'Inter',monospace;padding:6px 10px 6px 8px;border-radius:6px;box-shadow:0 2px 5px rgba(0,0,0,.18)}
+  .photo .fotos{position:absolute;bottom:9px;right:10px;background:rgba(0,0,0,.42);color:#fff;font-size:11px;font-weight:600;padding:4px 8px;border-radius:999px;z-index:2}
+  .tag{position:absolute;top:11px;left:11px;display:flex;align-items:center;gap:6px;background:var(--oro);color:#241a08;font:700 11.5px/1 'Inter',monospace;padding:6px 10px 6px 8px;border-radius:6px;box-shadow:0 2px 5px rgba(0,0,0,.18);z-index:2}
   .tag .hole{width:8px;height:8px;border-radius:50%;background:#241a08;opacity:.55}
   .badge{position:absolute;top:11px;right:11px;background:var(--pasto);color:#fff;font:700 10.5px 'Inter';padding:4px 9px;border-radius:999px;letter-spacing:.03em}
   .cbody{padding:14px 15px 16px;display:flex;flex-direction:column;gap:9px;flex:1}
@@ -169,6 +174,8 @@
 <main class="wrap">
   <div class="count" id="count"></div>
   <div class="grid" id="grid"></div>
+  <div class="sentinel" id="sentinel" style="display:none">Cargando más avisos…</div>
+  <div class="fin" id="finLista" style="display:none">✿ Has visto todos los avisos disponibles</div>
   <div class="state" id="state">Cargando…</div>
 </main>
 
@@ -227,6 +234,13 @@ function precioTxt(a){
 }
 const fotosDe=a=>a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
 const videosDe=a=>a.videos?a.videos.split(',').map(s=>s.trim()).filter(Boolean):[];
+// Miniatura vía Transformaciones de Supabase Pro: pasa /object/public/ → /render/image/public/ con params
+function miniUrl(url,w){
+  if(!url) return '';
+  const m=url.match(/^(https:\/\/[^/]+\/storage\/v1)\/object\/public\/(.+)$/);
+  if(!m) return url;
+  return `${m[1]}/render/image/public/${m[2]}?width=${w}&quality=75&resize=cover`;
+}
 const waNum=t=>{ t=String(t||'').replace(/\D/g,''); return t.length===10?'57'+t:t; };
 function haceCuanto(fecha){
   if(!fecha) return '';
@@ -248,9 +262,10 @@ sel.innerHTML='<option value="Todos">Todos los departamentos</option>'+DEPARTAME
 
 function placeholder(icon){ return `<div class="ph"><div class="ic">${icon}</div><div class="txt">Sin fotografía disponible</div></div>`; }
 function fotoBox(a,icon){
-  const fotos=fotosDe(a); const bg=fotos[0]?`style="background-image:url('${fotos[0]}')"`:''; const cls=fotos[0]?'photo hasimg':'photo';
+  const fotos=fotosDe(a); const cls=fotos[0]?'photo hasimg':'photo';
   const ribbon=a.estado==='Vendido'?'<div class="vendido-ribbon">✅ VENDIDO</div>':'';
-  return `<div class="${cls}" ${bg}>${ribbon}${placeholder(icon)}<div class="fotos">📸 ${fotos.length} fotos</div>`;
+  const img=fotos[0]?`<img src="${miniUrl(fotos[0],400)}" loading="lazy" decoding="async" alt="">`:'';
+  return `<div class="${cls}">${img}${ribbon}${placeholder(icon)}<div class="fotos">📸 ${fotos.length} fotos</div>`;
 }
 function botonContacto(a,msg){
   if(a.estado==='Vendido') return `<div class="wa vendido-btn">✅ Vendido en TERRAVA</div>`;
@@ -286,17 +301,40 @@ function cardPropiedad(a){
       ${botonContacto(a,msg)}
     </div></article>`;
 }
+const LOTE=12;
+let mostrados=0, listaFiltrada=[], io=null;
 function render(){
-  const list=depActual==='Todos'?ITEMS:ITEMS.filter(a=>a.departamento===depActual);
-  grid.innerHTML=list.map(a=>esBovino(a)?cardBovino(a):cardPropiedad(a)).join('');
+  listaFiltrada=depActual==='Todos'?ITEMS:ITEMS.filter(a=>a.departamento===depActual);
+  mostrados=0; grid.innerHTML='';
   const cual=cat==='propiedades'?'propiedad(es)':'aviso(s)';
-  countEl.innerHTML=`<b>${list.length}</b> ${cual} disponible(s)`+(depActual!=='Todos'?` en ${depActual}`:'');
-  if(list.length){ stateEl.style.display='none'; return; }
-  stateEl.style.display='block';
-  const form = cat==='bovinos'?'publicar-ganado.html':'publicar-propiedad.html';
-  if(depActual!=='Todos'){
-    stateEl.innerHTML=`Aún no hay ${cual} en <b>${depActual}</b>. ¡Sé el primero en publicar!<div style="margin-top:16px"><a class="cta" href="${form}">📋 Publicar en ${depActual}</a></div>`;
-  } else stateEl.innerHTML=`Aún no hay avisos publicados todavía. ¡Pronto! 🌱`;
+  countEl.innerHTML=`<b>${listaFiltrada.length}</b> ${cual} disponible(s)`+(depActual!=='Todos'?` en ${depActual}`:'');
+  if(!listaFiltrada.length){
+    stateEl.style.display='block'; $('sentinel').style.display='none'; $('finLista').style.display='none';
+    const form = cat==='bovinos'?'publicar-ganado.html':'publicar-propiedad.html';
+    if(depActual!=='Todos'){
+      stateEl.innerHTML=`Aún no hay ${cual} en <b>${depActual}</b>. ¡Sé el primero en publicar!<div style="margin-top:16px"><a class="cta" href="${form}">📋 Publicar en ${depActual}</a></div>`;
+    } else stateEl.innerHTML=`Aún no hay avisos publicados todavía. ¡Pronto! 🌱`;
+    return;
+  }
+  stateEl.style.display='none';
+  renderMas();
+}
+function renderMas(){
+  const desde=mostrados, hasta=Math.min(mostrados+LOTE, listaFiltrada.length);
+  if(desde>=hasta) return;
+  const trozo=listaFiltrada.slice(desde,hasta).map(a=>esBovino(a)?cardBovino(a):cardPropiedad(a)).join('');
+  grid.insertAdjacentHTML('beforeend',trozo);
+  mostrados=hasta;
+  const hayMas=mostrados<listaFiltrada.length;
+  $('sentinel').style.display=hayMas?'block':'none';
+  $('finLista').style.display=hayMas?'none':(listaFiltrada.length>LOTE?'block':'none');
+}
+function initInfiniteScroll(){
+  if(io) io.disconnect();
+  io=new IntersectionObserver((entries)=>{
+    if(entries[0].isIntersecting) renderMas();
+  },{rootMargin:'400px'});
+  io.observe($('sentinel'));
 }
 sel.addEventListener('change',()=>{ depActual=sel.value; render(); });
 
@@ -314,7 +352,7 @@ document.addEventListener('click',()=>$('pubMenu').classList.remove('open'));
 // ---- Modal ----
 let mFotos=[], mIdx=0;
 function showImg(){ const has=mFotos.length>0; $('mimg').style.display=has?'block':'none';
-  if(has){ $('mimg').src=mFotos[mIdx]; $('cidx').textContent=`${mIdx+1} / ${mFotos.length}`; } else $('cidx').textContent='Sin fotos';
+  if(has){ $('mimg').src=miniUrl(mFotos[mIdx],800); $('cidx').textContent=`${mIdx+1} / ${mFotos.length}`; } else $('cidx').textContent='Sin fotos';
   const multi=mFotos.length>1; $('mprev').style.display=$('mnext').style.display=multi?'block':'none'; }
 $('mprev').onclick=()=>{ mIdx=(mIdx-1+mFotos.length)%mFotos.length; showImg(); };
 $('mnext').onclick=()=>{ mIdx=(mIdx+1)%mFotos.length; showImg(); };
@@ -367,6 +405,7 @@ grid.addEventListener('click',e=>{ if(e.target.closest('.wa'))return; const c=e.
 
 async function cargar(){
   stateEl.style.display='block'; stateEl.textContent='Cargando…'; grid.innerHTML=''; countEl.textContent='';
+  $('sentinel').style.display='none'; $('finLista').style.display='none';
   try{
     const hace3=new Date(Date.now()-3*86400000).toISOString();
     const filtro=`estado.eq.Aprobado,and(estado.eq.Vendido,vendido_fecha.gte.${hace3})`;
@@ -391,6 +430,7 @@ function abrirPendiente(){ if(!pendingCodigo)return; const a=ITEMS.find(x=>x.cod
 // Deep-link: si el enlace trae #CODIGO, abre esa publicación
 const hash=decodeURIComponent((location.hash||'').replace('#','')).trim();
 if(hash){ pendingCodigo=hash; }
+initInfiniteScroll();
 cargar();
 </script>
 <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "1fa2be8efc174877a855c1e6dad7ce29"}'></script><!-- End Cloudflare Web Analytics -->
