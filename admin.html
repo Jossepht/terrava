@@ -287,8 +287,14 @@ function tarjeta(a,c){
 }
 
 function msgAprobado(codigo,link){
-  let t=`¡Tu aviso ${codigo} fue APROBADO y ya está publicado en TERRAVA! 🎉`;
-  if(link) t+=`\nCuando lo vendas, márcalo (o edítalo) aquí 👉 ${link}`;
+  let t=`¡Hola! 👋 Tu aviso ${codigo} fue APROBADO y ya está publicado en TERRAVA. 🎉\n\n`;
+  t+=`👉 Míralo en el catálogo:\nhttps://terrava.com.co/#${codigo}\n\n`;
+  t+=`Puedes compartir ese enlace con quien quieras. Los interesados te escribirán directamente por WhatsApp.\n\n`;
+  if(link){
+    t+=`🔒 GUARDA ESTE MENSAJE\n`;
+    t+=`Cuando LO VENDAS o necesites corregir algún dato, usa este enlace privado (no lo compartas):\n${link}\n\n`;
+    t+=`⚠️ Solo entra a ese enlace cuando de verdad necesites editar o marcar como vendido. Si solo quieres ver tu aviso, usa el link del catálogo de arriba.`;
+  }
   return encodeURIComponent(t);
 }
 function msgRechazado(codigo,motivo,link){
@@ -297,7 +303,7 @@ function msgRechazado(codigo,motivo,link){
   else t+=`Puedes corregirlo y volver a publicarlo. ¡Gracias!`;
   return encodeURIComponent(t);
 }
-function editLink(tabla,codigo,token){ return token ? `${location.origin}/editar.html?tabla=${tabla}&c=${encodeURIComponent(codigo)}&t=${token}` : ''; }
+function editLink(tabla,codigo,token){ return token ? `https://terrava.com.co/editar.html?tabla=${tabla}&c=${encodeURIComponent(codigo)}&t=${token}` : ''; }
 
 function hecho(tabla,id,estadoTxt,telNorm,msgEnc){
   const el=document.getElementById(`item-${tabla}-${id}`); if(!el) return;

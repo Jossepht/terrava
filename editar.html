@@ -62,7 +62,11 @@
   <div id="fatal" class="fatal hidden"><div style="font-size:44px">🔗</div><h2>Enlace no válido</h2><p id="fatalMsg"></p></div>
 
   <div id="formArea" class="hidden">
-    <div class="banner">✏️ Estás corrigiendo la publicación <b id="codLbl"></b>. Cambia lo que necesites y dale <b>“Enviar a revisión”</b> al final. No tienes que montar todo de nuevo.</div>
+    <div class="banner">
+      ✏️ Estás en la <b>página de edición</b> de tu aviso <b id="codLbl"></b>.<br><br>
+      Úsala solo si necesitas <b>corregir un dato</b> o <b>marcarlo como vendido</b>. No es para publicar uno nuevo — para eso, ve a <a href="https://terrava.com.co" style="color:var(--pasto);font-weight:600">terrava.com.co</a>.<br><br>
+      Si solo quieres <b>ver tu aviso</b> (o compartirlo), abre <a id="verEnCatalogo" href="https://terrava.com.co" style="color:var(--pasto);font-weight:600" target="_blank" rel="noopener">tu publicación en el catálogo</a>.
+    </div>
     <div class="vendidobox">
       <div>¿Ya lo vendiste? Márcalo y lo retiramos del catálogo.</div>
       <button type="button" id="btnVendido">✅ Ya lo vendí</button>
@@ -133,6 +137,7 @@ async function init(){
   videosExist=(DATA.videos||'').split(',').map(s=>s.trim()).filter(Boolean);
   $('loading').classList.add('hidden'); $('formArea').classList.remove('hidden');
   $('codLbl').textContent=DATA.codigo||'';
+  if(DATA.codigo) $('verEnCatalogo').href='https://terrava.com.co/#'+encodeURIComponent(DATA.codigo);
   $('telefono').value=DATA.telefono||'';
   if(TABLA==='avisos') fieldsBovino(); else fieldsPropiedad();
   wireMedia();
