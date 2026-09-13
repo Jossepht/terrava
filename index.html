@@ -234,13 +234,8 @@ function precioTxt(a){
 }
 const fotosDe=a=>a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
 const videosDe=a=>a.videos?a.videos.split(',').map(s=>s.trim()).filter(Boolean):[];
-// Miniatura vía Transformaciones de Supabase Pro: pasa /object/public/ → /render/image/public/ con params
-function miniUrl(url,w){
-  if(!url) return '';
-  const m=url.match(/^(https:\/\/[^/]+\/storage\/v1)\/object\/public\/(.+)$/);
-  if(!m) return url;
-  return `${m[1]}/render/image/public/${m[2]}?width=${w}&quality=75&resize=cover`;
-}
+// Miniatura: temporalmente devuelve la original (se revirtió la transformación; se probará luego con calma)
+function miniUrl(url,w){ return url||''; }
 const waNum=t=>{ t=String(t||'').replace(/\D/g,''); return t.length===10?'57'+t:t; };
 function haceCuanto(fecha){
   if(!fecha) return '';
