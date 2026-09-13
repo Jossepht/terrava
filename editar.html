@@ -46,6 +46,13 @@
   .vendidobox{background:#eafaf0;border:1.6px solid #b7e4c8;border-radius:12px;padding:14px;margin-bottom:18px;display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--pasto-dk)}
   .vendidobox button{background:#1c7c4a;color:#fff;border:none;border-radius:9px;padding:12px;font:700 15px 'Inter',sans-serif;cursor:pointer}
   .vendidobox button:hover{background:#155e39}
+  .newlink{background:#fff7e6;border:1.6px solid var(--oro-soft);border-radius:12px;padding:15px;margin:16px auto;max-width:520px;text-align:left}
+  .newlink h3{font-family:'Zilla Slab',serif;color:var(--pasto);margin:0 0 8px;font-size:16px}
+  .newlink p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0 0 10px}
+  .newlink .linkbox{background:#fff;border:1px dashed var(--oro);border-radius:8px;padding:10px 12px;font-size:12px;word-break:break-all;color:var(--pasto-dk);margin-bottom:10px;font-family:'Inter',monospace}
+  .newlink .copybtn{background:var(--pasto);color:#fff;border:none;border-radius:9px;padding:11px 16px;font:600 14px 'Inter';cursor:pointer;width:100%}
+  .newlink .copybtn:hover{background:var(--pasto-dk)}
+  .newlink .copybtn.copied{background:#1c7c4a}
 </style>
 </head>
 <body>
@@ -83,6 +90,12 @@
   <div id="ok" class="done hidden">
     <div class="big">✅</div><h2>¡Corrección enviada!</h2>
     <p>Tu publicación volvió a revisión. El administrador la revisará y la publicará. ¡Gracias! 🐄🏡</p>
+    <div class="newlink hidden" id="newLinkBox">
+      <h3>🔒 Nuevo enlace de edición</h3>
+      <p>Como cambiaste tu número de WhatsApp, generamos un <b>nuevo enlace de edición</b>. El enlace anterior <b>ya no funciona</b>. Guarda este link, es el único con el que podrás editar o marcar como vendido tu aviso.</p>
+      <div class="linkbox" id="newLinkUrl"></div>
+      <button class="copybtn" id="copyNewLink">📋 Copiar mi nuevo enlace</button>
+    </div>
   </div>
 
   <div id="okVendido" class="done hidden">
@@ -289,7 +302,15 @@ $('enviar').addEventListener('click', async ()=>{
     $('enviar').textContent='Guardando…';
     const { data, error }=await sb.rpc('editar_guardar',{p_tabla:TABLA,p_codigo:COD,p_token:TOK,p_data:p});
     if(error) throw error;
-    if(data!=='OK') throw new Error('No se pudo guardar (enlace inválido).');
+    if(!data || !String(data).startsWith('OK')) throw new Error('No se pudo guardar (enlace inválido).');
+    // Si el teléfono cambió, el RPC devuelve 'OK:nuevo-token-uuid'
+    const partes=String(data).split(':');
+    if(partes.length>1 && partes[1]){
+      const nuevoLink='https://terrava.com.co/editar.html?tabla='+encodeURIComponent(TABLA)+'&c='+encodeURIComponent(COD)+'&t='+encodeURIComponent(partes[1]);
+      $('newLinkUrl').textContent=nuevoLink;
+      $('newLinkBox').classList.remove('hidden');
+      $('copyNewLink').onclick=async ()=>{ try{ await navigator.clipboard.writeText(nuevoLink); $('copyNewLink').textContent='✅ Enlace copiado'; $('copyNewLink').classList.add('copied'); }catch(e){ prompt('Copia el enlace:', nuevoLink); } };
+    }
     $('formArea').classList.add('hidden'); $('ok').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
     $('err').textContent='No se pudo enviar: '+(err.message||err); $('err').style.display='block';
