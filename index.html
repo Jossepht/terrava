@@ -8,7 +8,7 @@
 <meta name="keywords" content="ganado en venta, ganado bovino, fincas en venta, lotes, propiedades rurales, mercado rural, Colombia, comprar ganado, vender ganado, TERRAVA">
 <meta name="author" content="TERRAVA">
 <meta name="robots" content="index, follow">
-<meta name="theme-color" content="#22563E">
+<meta name="theme-color" content="#0f2e21">
 <link rel="canonical" href="https://terrava.com.co/">
 <!-- Vista previa al compartir (Facebook, WhatsApp) -->
 <meta property="og:type" content="website">
@@ -24,135 +24,203 @@
 {"@context":"https://schema.org","@type":"WebSite","name":"TERRAVA","alternateName":"TERRAVA - Mercado rural de Colombia","url":"https://terrava.com.co/","description":"Mercado rural de Colombia: compra y venta de ganado, fincas y propiedades del campo. Publica tu aviso gratis."}
 </script><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--paper:#FAF6EC;--pasto:#22563E;--pasto-dk:#163b2a;--oro:#C6892B;--oro-soft:#E8B84B;
-    --tierra:#241f18;--linea:#E7DDC8;--muted:#726a5b;--wa:#25D366;--wa-dk:#128C7E;}
+  :root{
+    --paper:#faf6ec; --paper-2:#f5efdf; --pasto:#0f2e21; --pasto-2:#1c4b34;
+    --oro:#c28a30; --oro-2:#e0c68a; --oro-soft:#f6e7c8; --oro-hover:#a97527;
+    --tierra:#241f18; --linea:#e7ddc8; --muted:#726a5b; --muted-2:#5c5648;
+    --wa:#25D366; --wa-dk:#128C7E; --rojo-vendido:#a02828;
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--paper);color:var(--tierra);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{margin:0;background:var(--paper);color:var(--tierra);font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1080px;margin:0 auto;padding:0 18px}
-  header{background:var(--pasto);color:#fdfbf4;padding:18px 0 18px;border-bottom:4px solid var(--oro)}
-  .brandrow{display:flex;align-items:center;gap:13px}
-  .stamp{width:46px;height:46px;border:2.5px solid var(--oro-soft);border-radius:50%;display:grid;place-items:center;font-family:'Zilla Slab',serif;font-weight:700;font-size:26px;color:var(--oro-soft);flex:none;box-shadow:inset 0 0 0 3px rgba(232,184,75,.18)}
-  .brandtext h1{font-family:'Zilla Slab',serif;font-weight:700;letter-spacing:.14em;margin:0;font-size:26px;line-height:1}
-  .brandtext .sub{font-size:12px;color:var(--oro-soft);font-weight:600;letter-spacing:.06em;margin-top:3px}
-  .brandtext .slogan{font-size:11.5px;color:#cfe3d6;margin-top:2px}
+
+  /* ============ GACETA COMPACTA ============ */
+  .gaceta{background:#fff;padding:7px 16px;border-bottom:1px solid var(--linea);text-align:center;position:relative}
+  .gaceta::before,.gaceta::after{content:'';position:absolute;left:0;right:0;height:1px;background:var(--oro)}
+  .gaceta::before{top:0}.gaceta::after{bottom:0}
+  .gaceta .kicker{font-family:'Fraunces',serif;font-size:11px;letter-spacing:.22em;color:var(--oro);font-weight:700;margin-bottom:3px}
+  .gaceta h2{font-family:'Lora',serif;font-size:12px;font-weight:600;color:var(--pasto);line-height:1.3;font-style:italic;margin:0}
+
+  /* ============ HEADER ============ */
+  header{background:var(--paper);color:var(--tierra);padding-top:2px}
+  .brandrow{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:14px 0 12px;position:relative}
+  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:700;font-size:23px;color:var(--oro);flex:none;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .brandtext h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.16em;margin:0;font-size:20px;line-height:1;color:var(--pasto)}
+  .brandtext .sub{font-size:9px;color:var(--oro);font-weight:700;letter-spacing:.15em;margin-top:3px}
   .nav{margin-left:auto;display:flex;gap:8px;align-items:center;position:relative}
-  .navbtn{background:transparent;border:1px solid rgba(255,255,255,.3);color:#eaf1ec;font:600 14px 'Inter';padding:11px 17px;border-radius:10px;cursor:pointer;text-decoration:none;white-space:nowrap}
-  .navbtn.pub{background:var(--oro);border-color:var(--oro);color:#241a08;font-weight:700}
-  .pubmenu{position:absolute;top:46px;right:0;background:#fff;border:1px solid var(--linea);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);overflow:hidden;display:none;min-width:200px;z-index:20}
+
+  /* BOTONES HEADER: uniformes en altura y peso, jerarquía por fill/outline */
+  .navpub{background:var(--oro);color:#241a08;border:1px solid var(--oro);border-radius:99px;padding:9px 14px;font:700 12.5px 'Manrope';cursor:pointer;box-shadow:0 2px 6px rgba(194,138,48,.22);white-space:nowrap;transition:.15s;display:inline-flex;align-items:center;gap:5px;line-height:1}
+  .navpub:hover{background:var(--oro-hover);border-color:var(--oro-hover)}
+  .navpub .plus{font-size:15px;line-height:1;font-weight:700;margin-top:-1px}
+  .navpub .car{font-size:9px;opacity:.8;margin-left:1px}
+  .navctc{background:transparent;border:1px solid var(--oro);color:#8a5a13;padding:9px 14px;border-radius:99px;font:600 12.5px 'Manrope';cursor:pointer;white-space:nowrap;line-height:1;transition:.15s;text-decoration:none;display:inline-flex;align-items:center}
+  .navctc:hover{background:rgba(194,138,48,.08)}
+
+  /* Dropdown compartido (header y FAB usan la misma estética) */
+  .pubmenu{position:absolute;background:#fff;border:1px solid var(--linea);border-radius:12px;box-shadow:0 8px 24px rgba(36,31,24,.18);overflow:hidden;min-width:210px;z-index:60;display:none}
   .pubmenu.open{display:block}
-  .pubmenu a{display:block;padding:13px 16px;color:var(--tierra);text-decoration:none;font-size:14px;font-weight:500}
+  .pubmenu a{display:flex;align-items:center;gap:9px;padding:13px 16px;color:var(--tierra);text-decoration:none;font:500 13.5px 'Manrope';cursor:pointer}
   .pubmenu a:hover{background:var(--paper)}
   .pubmenu a+a{border-top:1px solid var(--linea)}
-  .tabs{display:flex;gap:8px;margin-top:16px}
-  .tab{flex:1;max-width:180px;background:transparent;border:1.5px solid rgba(255,255,255,.3);color:#eaf1ec;font:700 14px 'Inter';padding:11px;border-radius:10px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px}
-  .tab.active{background:var(--oro);border-color:var(--oro);color:#241a08}
-  .filterbar{background:var(--pasto-dk);position:sticky;top:0;z-index:5;padding:12px 0}
-  .filterbar .wrap{display:flex;align-items:center;gap:12px}
-  .filterlbl{color:#cfe3d6;font-size:13px;font-weight:600;flex:none}
-  .depsel{flex:1;max-width:360px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:10px;padding:11px 38px 11px 14px;font:600 14px 'Inter';appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23E8B84B' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 13px center}
-  .depsel option{color:#241f18;background:#fff}
-  .count{font-size:13px;color:var(--muted);padding:16px 0 4px;font-weight:500}.count b{color:var(--pasto)}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 0 40px}
-  @media(min-width:700px){.grid{grid-template-columns:1fr 1fr 1fr;gap:16px}}
-  @media(max-width:620px){
-    .brandrow{flex-wrap:wrap}
-    .nav{margin-left:0;flex-basis:100%;margin-top:12px;gap:8px}
-    .navbtn{font-size:13.5px;padding:11px 15px}
-    .cbody{padding:11px 12px 13px;gap:6px}
-    .kind{font-size:12px;letter-spacing:.02em}
-    .desc{font-size:12.5px}
-    .meta{font-size:11.5px;gap:3px}
-    .price{font-size:18px}
-    .price .pu{font-size:11px}
-    .vermas{font-size:11.5px}
-    .card .wa{margin-top:8px;padding:11px;font-size:14px}
-    .photo{aspect-ratio:4/5}
-    .photo .fotos{font-size:9.5px;padding:3px 6px;bottom:7px;right:7px}
-    .tag{font-size:9px;padding:4px 6px 4px 5px;top:7px;left:7px;background:rgba(198,137,43,.9)}
-    .tag .hole{width:5px;height:5px}
-  }
+  #pubMenu{top:calc(100% + 6px);right:0}
+
+  /* ============ PESTAÑAS ============ */
+  .tabs{display:flex;gap:22px;border-bottom:1px solid var(--linea);padding-top:2px}
+  .tab{background:transparent;border:none;color:var(--muted);font:600 13.5px 'Fraunces',serif;padding:12px 2px 11px;cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+  .tab.active{color:var(--pasto);border-bottom-color:var(--oro)}
+  .tab:hover:not(.active){color:var(--pasto-2)}
+
+  /* ============ FILTRO ============ */
+  .filterbar{background:var(--paper);border-bottom:1px solid var(--linea);position:sticky;top:0;z-index:5;padding:11px 0}
+  .filterbar .wrap{display:flex;align-items:center;gap:10px}
+  .filterlbl{font-style:italic;font-family:'Fraunces',serif;font-weight:600;color:var(--muted-2);font-size:12.5px;flex:none}
+  .depsel{flex:1;max-width:360px;background:#fff;color:var(--tierra);border:1px solid #d4c9b0;border-radius:10px;padding:9px 36px 9px 12px;font:500 12.5px 'Manrope';appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23c28a30' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+  .depsel option{color:var(--tierra);background:#fff}
+
+  /* ============ CATÁLOGO ============ */
+  .count{font-size:12px;color:var(--muted);padding:14px 0 4px;font-style:italic;font-family:'Fraunces',serif}
+  .count b{color:var(--pasto);font-style:normal;font-weight:700}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:8px 0 40px;align-items:stretch}
+  @media(min-width:700px){.grid{grid-template-columns:1fr 1fr 1fr;gap:14px}}
+
   .state{padding:44px 18px;text-align:center;color:var(--muted);font-size:15px;line-height:1.5}.state b{color:var(--pasto)}
   .sentinel{padding:20px;text-align:center;color:var(--muted);font-size:13px}
-  .sentinel.loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid var(--linea);border-top-color:var(--oro);border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle;margin-right:8px}
+  .sentinel.loading::before,.sentinel::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid var(--linea);border-top-color:var(--oro);border-radius:50%;animation:sp .8s linear infinite;vertical-align:middle;margin-right:8px}
   @keyframes sp{to{transform:rotate(360deg)}}
-  .fin{padding:26px 18px;text-align:center;color:var(--muted);font-size:13px;font-style:italic}
-  .card{background:#fff;border:1px solid var(--linea);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(36,31,24,.04);cursor:pointer;transition:box-shadow .15s}
-  .card:hover{box-shadow:0 4px 14px rgba(36,31,24,.12)}
-  .photo{aspect-ratio:16/10;background:radial-gradient(120% 100% at 50% 0%, #35744f 0%, #1c4b34 72%);position:relative;display:grid;place-items:center;color:#bfe0c9;overflow:hidden}
+  .fin{padding:26px 18px;text-align:center;color:var(--muted);font-size:13px;font-style:italic;font-family:'Lora',serif}
+
+  /* CARDS */
+  .card{background:#fff;border:1px solid var(--linea);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(36,31,24,.06);cursor:pointer;transition:box-shadow .15s,transform .15s;position:relative;height:100%}
+  .card:hover{box-shadow:0 6px 18px rgba(36,31,24,.11)}
+  .card.vendido{opacity:.9}
+
+  /* FOTO — aspect-ratio original (16/10 desktop, 4/5 mobile) preservado para no alterar el encuadre de las fotos */
+  .photo{aspect-ratio:16/10;background:radial-gradient(120% 100% at 50% 0%, #35744f 0%, #1c4b34 72%);position:relative;display:grid;place-items:center;color:#bfe0c9;overflow:hidden;flex:none}
   .photo>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1}
   .ph{display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.85}
-  .ph .ic{font-size:46px;opacity:.4}
-  .ph .txt{font-size:11.5px;letter-spacing:.05em;color:#a9cbb6}
+  .ph .ic{font-size:44px;opacity:.42}
+  .ph .txt{font-size:11px;letter-spacing:.05em;color:#a9cbb6}
   .photo.hasimg .ph{display:none}
-  .photo .fotos{position:absolute;bottom:9px;right:10px;background:rgba(0,0,0,.42);color:#fff;font-size:11px;font-weight:600;padding:4px 8px;border-radius:999px;z-index:2}
-  .tag{position:absolute;top:11px;left:11px;display:flex;align-items:center;gap:6px;background:var(--oro);color:#241a08;font:700 11.5px/1 'Inter',monospace;padding:6px 10px 6px 8px;border-radius:6px;box-shadow:0 2px 5px rgba(0,0,0,.18);z-index:2}
-  .tag .hole{width:8px;height:8px;border-radius:50%;background:#241a08;opacity:.55}
-  .badge{position:absolute;top:11px;right:11px;background:var(--pasto);color:#fff;font:700 10.5px 'Inter';padding:4px 9px;border-radius:999px;letter-spacing:.03em}
-  .cbody{padding:14px 15px 16px;display:flex;flex-direction:column;gap:9px;flex:1}
-  .codigo{align-self:flex-start;font:700 11px 'Inter',monospace;color:#8a5a13;background:#f6e7c8;padding:3px 9px;border-radius:5px;letter-spacing:.03em}
-  .kind{font-family:'Zilla Slab',serif;font-weight:700;font-size:15px;letter-spacing:.04em;color:var(--pasto);text-transform:uppercase}
-  .desc{font-size:14px;color:var(--tierra);font-weight:500;line-height:1.35}
-  .meta{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
-  .meta span{padding-left:22px;text-indent:-22px;overflow-wrap:break-word;word-break:break-word;line-height:1.4}
-  .price{font-family:'Zilla Slab',serif;font-weight:700;font-size:22px;color:var(--oro);line-height:1.15;margin-top:2px;overflow-wrap:break-word}
-  .price .pu{font-family:'Inter';font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap}
-  .vermas{font-size:12.5px;color:var(--pasto);font-weight:600}
-  .wa{margin-top:auto;background:var(--wa);color:#fff;border:none;border-radius:10px;padding:12px;font:600 14.5px/1 'Inter';text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s}
-  .vendido-ribbon{position:absolute;top:0;left:0;right:0;background:rgba(28,124,74,.94);color:#fff;font:800 13px 'Inter';text-align:center;padding:7px;letter-spacing:.1em;z-index:2}
-  .vendido-btn{background:#6b7280!important;cursor:default}
-  .card.vendido{opacity:.85}
+  .photo .fotos{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:99px;z-index:2}
+
+  /* Cinta VENDIDO chica esquina superior izquierda */
+  .rib-vendido{position:absolute;top:12px;left:-4px;background:var(--rojo-vendido);color:#fff;font:700 10.5px 'Manrope';letter-spacing:.1em;padding:4px 10px;border-radius:0 4px 4px 0;box-shadow:0 2px 4px rgba(0,0,0,.2);z-index:3}
+
+  /* CBODY compactado (era 14/15/16 gap 9 → ahora 9/11/11 gap 5) — cede espacio a la foto */
+  .cbody{padding:9px 11px 11px;display:flex;flex-direction:column;gap:5px;flex:1}
+  .codigo{align-self:flex-start;font:700 9.5px 'Manrope',monospace;color:#8a5a13;background:var(--oro-soft);padding:3px 8px;border-radius:4px;letter-spacing:.05em}
+  .kind{font-family:'Fraunces',serif;font-weight:700;font-size:13px;letter-spacing:.04em;color:var(--pasto);text-transform:uppercase;line-height:1.2;margin-top:1px}
+  .desc{font-size:12.5px;color:var(--tierra);font-weight:500;line-height:1.32}
+  .meta{font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px;flex:1;line-height:1.45}
+  .meta span{padding-left:20px;text-indent:-20px;overflow-wrap:break-word;word-break:break-word;display:block}
+
+  /* Precio — Manrope 800 tabular-nums para legibilidad */
+  .price{font-family:'Manrope',sans-serif;font-weight:800;font-size:18px;color:var(--oro);line-height:1.2;margin-top:2px;overflow-wrap:break-word;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .price .pu{font-family:'Manrope';font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap;letter-spacing:0}
+  .vermas{font-size:10.5px;color:var(--pasto);font-weight:600}
+
+  /* BOTÓN WHATSAPP siempre al fondo */
+  .wa{margin-top:auto;background:var(--wa);color:#fff;border:none;border-radius:99px;padding:10px;font:600 12.5px 'Manrope';text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s;flex:none}
   .wa:hover{background:var(--wa-dk)}
-  .cta{display:inline-flex;align-items:center;gap:8px;background:var(--oro);color:#241a08;font:700 14px/1 'Inter';padding:13px 22px;border-radius:10px;text-decoration:none}
-  footer{background:var(--pasto);color:#eaf1ec;padding:32px 0 34px;text-align:center;border-top:4px solid var(--oro)}
-  footer h3{font-family:'Zilla Slab',serif;font-size:20px;margin:0 0 6px}
-  footer .fp{margin:0 0 16px;font-size:13.5px;color:#c3d8ca}
-  .fbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-  .fbtn{display:inline-flex;align-items:center;gap:7px;background:var(--oro);color:#241a08;font:700 13.5px 'Inter';padding:12px 18px;border-radius:10px;text-decoration:none}
-  .fbtn.ghost{background:transparent;border:1px solid rgba(255,255,255,.3);color:#eaf1ec}
-  .fabout{margin-top:22px;font-size:12.5px;color:#a9cbb6;line-height:1.7}
-  .fabout b{color:#e8f0ea;font-family:'Zilla Slab',serif;letter-spacing:.1em}
-  .flinks{margin-top:10px;font-size:12px}
-  .flinks a{color:#cfe3d6;text-decoration:none;margin:0 6px}
-  /* Modal */
+  .vendido-btn{background:#6b7280!important;cursor:default}
+
+  .cta{display:inline-flex;align-items:center;gap:8px;background:var(--oro);color:#241a08;font:700 14px/1 'Manrope';padding:13px 22px;border-radius:99px;text-decoration:none}
+
+  /* ============ FOOTER ============ */
+  footer{background:var(--pasto);color:#e8e0cf;padding:26px 0 22px;margin-top:20px;border-top:3px solid var(--oro)}
+  footer .wrap{max-width:640px}
+  footer h3{font-family:'Fraunces',serif;font-size:17px;color:var(--oro-2);text-align:center;margin:0 0 10px;letter-spacing:.03em;font-weight:700}
+  footer .fp{font-size:12.5px;line-height:1.7;text-align:justify;color:#cfc5a8;font-family:'Lora',serif;margin:0}
+  footer .fp b{color:var(--oro-2);font-weight:700;font-family:'Manrope';letter-spacing:.05em}
+  footer .flinks{display:flex;justify-content:center;gap:16px;margin-top:14px;font-size:11.5px;flex-wrap:wrap}
+  footer .flinks a{color:var(--oro-2);text-decoration:none;font-weight:600;letter-spacing:.02em}
+  footer .flinks a:hover{color:#fff}
+
+  /* ============ FAB ============ */
+  .fab-wrap{position:fixed;bottom:18px;right:18px;z-index:40}
+  .fab{background:var(--oro);color:#241a08;border:1px solid var(--oro);border-radius:99px;padding:10px 16px 10px 13px;font:700 13px 'Manrope';cursor:pointer;box-shadow:0 5px 14px rgba(0,0,0,.22), 0 1px 3px rgba(0,0,0,.12);display:inline-flex;align-items:center;gap:5px;transition:.2s;user-select:none;line-height:1}
+  .fab:hover{background:var(--oro-hover);border-color:var(--oro-hover);transform:translateY(-1px);box-shadow:0 7px 18px rgba(0,0,0,.26), 0 1px 3px rgba(0,0,0,.14)}
+  .fab .plus{font-size:16px;line-height:1;font-weight:700;margin-top:-1px}
+  #fabMenu{bottom:calc(100% + 8px);right:0;position:absolute;top:auto}
+  body.modal-open .fab-wrap{display:none}
+
+  /* ============ MODAL ============ */
   .modal{position:fixed;top:0;left:0;right:0;bottom:0;height:100dvh;background:rgba(20,15,10,.78);display:none;z-index:50;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px}
   .modal.open{display:block}
   .mbox{max-width:600px;margin:0 auto;background:var(--paper);border-radius:16px;overflow:hidden;position:relative}
   .mclose{position:absolute;top:10px;right:10px;z-index:3;width:34px;height:34px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .mclosebottom{display:block;width:100%;background:#fff;border:1px solid var(--linea);border-radius:10px;padding:13px;font:600 14px 'Inter',sans-serif;color:var(--muted);cursor:pointer;margin-top:14px;text-align:center}
+  .mclosebottom{display:block;width:100%;background:#fff;border:1px solid var(--linea);border-radius:10px;padding:13px;font:600 14px 'Manrope',sans-serif;color:var(--muted);cursor:pointer;margin-top:14px;text-align:center}
   .carousel{position:relative;background:#111;aspect-ratio:4/3;display:grid;place-items:center}
   .carousel img{width:100%;height:100%;object-fit:contain;display:none}
   .carbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:#fff;border:none;width:42px;height:42px;border-radius:50%;font-size:24px;cursor:pointer;display:none}
   .carbtn.prev{left:8px}.carbtn.next{right:8px}
   .cidx{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#fff;font-size:12px;padding:3px 11px;border-radius:999px}
   .minfo{padding:18px 18px 24px}
-  .mtag{display:inline-flex;align-items:center;gap:6px;background:var(--oro);color:#241a08;font:700 12px 'Inter',monospace;padding:5px 10px;border-radius:6px}
-  .mkind{font-family:'Zilla Slab',serif;color:var(--pasto);margin:12px 0 4px;font-size:19px}
+  .mtag{display:inline-flex;align-items:center;gap:6px;background:var(--oro);color:#241a08;font:700 12px 'Manrope',monospace;padding:5px 10px;border-radius:6px}
+  .mkind{font-family:'Fraunces',serif;color:var(--pasto);margin:12px 0 4px;font-size:19px;font-weight:700}
   .mdesc{font-size:15px;font-weight:500;margin:0 0 12px}
   .mrows{font-size:14px;color:var(--tierra);display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-  .mprice{font-family:'Zilla Slab',serif;font-weight:700;font-size:26px;color:var(--oro);margin-bottom:14px}
-  .mprice .pu{font-family:'Inter';font-size:14px;color:var(--muted);font-weight:600}
+  .mprice{font-family:'Manrope',sans-serif;font-weight:800;font-size:26px;color:var(--oro);margin-bottom:14px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .mprice .pu{font-family:'Manrope';font-size:14px;color:var(--muted);font-weight:600;letter-spacing:0}
   .mobs{background:#fff;border:1px solid var(--linea);border-radius:10px;padding:12px;font-size:14px;line-height:1.5;margin-bottom:14px;white-space:pre-line}
   .mvideos video{width:100%;border-radius:10px;margin-top:10px;background:#000}
   .mbtns{display:flex;gap:10px;margin-top:16px}
   .mbtns .wa{margin-top:0;flex:1}
-  .share{flex:none;background:#fff;border:1.5px solid var(--wa);color:var(--wa-dk);border-radius:10px;padding:12px 16px;font:700 14px 'Inter';text-decoration:none;display:flex;align-items:center;gap:7px}
-  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  .share{flex:none;background:#fff;border:1.5px solid var(--wa);color:var(--wa-dk);border-radius:99px;padding:12px 16px;font:700 14px 'Manrope';text-decoration:none;display:flex;align-items:center;gap:7px}
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  /* ============ MÓVIL (< 480px) — botones en línea con TERRAVA ============ */
+  @media(max-width:479px){
+    .brandtext h1{font-size:18px;letter-spacing:.12em}
+    .brandtext .sub{font-size:8px;letter-spacing:.05em;margin-top:3px}
+    .stamp{width:40px;height:40px;font-size:21px}
+    .brandrow{gap:9px;padding:12px 0 10px}
+    .nav{gap:6px}
+    .navpub{padding:8px 12px;font-size:12px;gap:4px}
+    .navpub .plus{font-size:14px}
+    .navpub .car{font-size:8px}
+    .navctc{padding:8px 12px;font-size:12px}
+    .fab{padding:9px 14px 9px 12px;font-size:12.5px}
+    .fab .plus{font-size:15px}
+    .fab-wrap{bottom:16px;right:14px}
+    .tabs{gap:16px}
+    .tab{font-size:12.5px}
+    .grid{gap:10px;padding:6px 0 30px}
+    .cbody{padding:8px 10px 10px;gap:4px}
+    .kind{font-size:12.5px}
+    .desc{font-size:12px}
+    .meta{font-size:11px}
+    .price{font-size:17px}
+    .price .pu{font-size:10px}
+    .vermas{font-size:10px}
+    .wa{padding:9px;font-size:12px}
+    .photo{aspect-ratio:4/5}
+  }
 </style>
 </head>
 <body>
+
+<!-- =========== GACETA COMPACTA =========== -->
+<div class="gaceta">
+  <div class="kicker">◆ TERRAVA ◆</div>
+  <h2>Conectamos oportunidades para el campo colombiano</h2>
+</div>
+
+<!-- =========== HEADER =========== -->
 <header><div class="wrap">
   <div class="brandrow">
     <div class="stamp" aria-hidden="true">T</div>
     <div class="brandtext">
       <h1>TERRAVA</h1>
       <div class="sub">MERCADO RURAL DE COLOMBIA</div>
-      <div class="slogan">Conectamos oportunidades para el campo colombiano</div>
     </div>
     <nav class="nav">
-      <button class="navbtn pub" id="pubBtn">Publicar ▾</button>
-      <a class="navbtn" id="contactoBtn" target="_blank" rel="noopener">Contactar administrador</a>
+      <button class="navpub" id="pubBtn"><span class="plus">+</span> Publicar <span class="car">▾</span></button>
+      <a class="navctc" id="contactoBtn" target="_blank" rel="noopener">Contáctanos</a>
       <div class="pubmenu" id="pubMenu">
         <a href="publicar-ganado.html">🐄 Publicar ganado</a>
         <a href="publicar-propiedad.html">🏡 Publicar propiedad</a>
@@ -160,14 +228,14 @@
     </nav>
   </div>
   <div class="tabs">
-    <button class="tab active" data-cat="inicio">🏠 Inicio</button>
-    <button class="tab" data-cat="bovinos">🐄 Bovinos</button>
-    <button class="tab" data-cat="propiedades">🏡 Propiedades</button>
+    <button class="tab active" data-cat="inicio">Inicio</button>
+    <button class="tab" data-cat="bovinos">Bovinos</button>
+    <button class="tab" data-cat="propiedades">Propiedades</button>
   </div>
 </div></header>
 
 <div class="filterbar"><div class="wrap">
-  <label class="filterlbl" for="depSelect">Región:</label>
+  <label class="filterlbl" for="depSelect">Región</label>
   <select id="depSelect" class="depsel"></select>
 </div></div>
 
@@ -180,22 +248,25 @@
 </main>
 
 <footer><div class="wrap">
-  <h3 id="footTitle">¿Tienes ganado para vender?</h3>
-  <p class="fp">Publica tu aviso gratis, en menos de un minuto.</p>
-  <div class="fbtns">
-    <a class="fbtn" href="publicar-ganado.html">🐄 Publicar ganado</a>
-    <a class="fbtn ghost" href="publicar-propiedad.html">🏡 Publicar propiedad</a>
-  </div>
-  <div class="fabout">
-    <b>TERRAVA COLOMBIA</b><br>
-    Mercado rural de Colombia · Conectamos oportunidades para el campo colombiano
-    <div class="flinks">
-      <a id="footWa" target="_blank" rel="noopener">WhatsApp</a> ·
-      <a href="terminos.html">Términos</a> ·
-      <a href="privacidad.html">Privacidad</a>
-    </div>
+  <h3 id="footTitle">◆ Sobre TERRAVA ◆</h3>
+  <p class="fp">
+    <b>TERRAVA</b> es una vitrina digital donde vendedores y compradores del campo colombiano se encuentran directamente. Publicar tu ganado o tu finca <b>no tiene costo</b>, y el contacto ocurre por WhatsApp entre las partes. Somos una herramienta para que la información llegue a más manos honestas del sector rural, y para que <b>quien tiene un buen negocio en el campo, tenga dónde mostrarlo</b>.
+  </p>
+  <div class="flinks">
+    <a id="footWa" target="_blank" rel="noopener">WhatsApp</a>
+    <a href="terminos.html">Términos</a>
+    <a href="privacidad.html">Privacidad</a>
   </div>
 </div></footer>
+
+<!-- FAB (Floating Action Button) -->
+<div class="fab-wrap">
+  <button class="fab" id="fabBtn"><span class="plus">+</span> Publicar</button>
+  <div class="pubmenu" id="fabMenu">
+    <a href="publicar-ganado.html">🐄 Publicar ganado</a>
+    <a href="publicar-propiedad.html">🏡 Publicar propiedad</a>
+  </div>
+</div>
 
 <div class="modal" id="modal"><div class="mbox">
   <button class="mclose" id="mclose">✕</button>
@@ -258,7 +329,7 @@ sel.innerHTML='<option value="Todos">Todos los departamentos</option>'+DEPARTAME
 function placeholder(icon){ return `<div class="ph"><div class="ic">${icon}</div><div class="txt">Sin fotografía disponible</div></div>`; }
 function fotoBox(a,icon){
   const fotos=fotosDe(a); const cls=fotos[0]?'photo hasimg':'photo';
-  const ribbon=a.estado==='Vendido'?'<div class="vendido-ribbon">✅ VENDIDO</div>':'';
+  const ribbon=a.estado==='Vendido'?'<div class="rib-vendido">✓ VENDIDO</div>':'';
   const img=fotos[0]?`<img src="${miniUrl(fotos[0],400)}" loading="lazy" decoding="async" alt="">`:'';
   return `<div class="${cls}">${img}${ribbon}${placeholder(icon)}<div class="fotos">📸 ${fotos.length} fotos</div>`;
 }
@@ -336,13 +407,14 @@ sel.addEventListener('change',()=>{ depActual=sel.value; render(); });
 function setTab(nuevo){
   cat=nuevo; document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.cat===cat));
   depActual='Todos'; sel.value='Todos';
-  $('footTitle').textContent=cat==='bovinos'?'¿Tienes ganado para vender?':(cat==='propiedades'?'¿Tienes una finca o lote para vender?':'¿Tienes algo del campo para vender?');
+  // Footer ahora es informativo (◆ Sobre TERRAVA ◆) — no cambia por pestaña; el CTA lo cubren el FAB y el botón del header
 }
 document.querySelector('.tabs').addEventListener('click',e=>{ const t=e.target.closest('.tab'); if(!t)return; setTab(t.dataset.cat); cargar(); });
 
-// Menú Publicar
-$('pubBtn').addEventListener('click',e=>{ e.stopPropagation(); $('pubMenu').classList.toggle('open'); });
-document.addEventListener('click',()=>$('pubMenu').classList.remove('open'));
+// Menú Publicar (header) + FAB
+$('pubBtn').addEventListener('click',e=>{ e.stopPropagation(); $('pubMenu').classList.toggle('open'); $('fabMenu').classList.remove('open'); });
+$('fabBtn').addEventListener('click',e=>{ e.stopPropagation(); $('fabMenu').classList.toggle('open'); $('pubMenu').classList.remove('open'); });
+document.addEventListener('click',()=>{ $('pubMenu').classList.remove('open'); $('fabMenu').classList.remove('open'); });
 
 // ---- Modal ----
 let mFotos=[], mIdx=0;
@@ -387,11 +459,11 @@ function openModal(a){
       <a class="share" href="https://wa.me/?text=${shareTxt}" target="_blank" rel="noopener">📤 Compartir</a>
     </div>
     <button class="mclosebottom" onclick="closeModal()">← Volver al catálogo</button>`;
-  $('modal').classList.add('open'); document.body.style.overflow='hidden';
+  $('modal').classList.add('open'); document.body.style.overflow='hidden'; document.body.classList.add('modal-open');
   $('modal').scrollTop=0;
   history.replaceState(null,'',location.pathname+'#'+a.codigo);
 }
-function closeModal(){ $('modal').classList.remove('open'); document.body.style.overflow=''; $('minfo').innerHTML=''; history.replaceState(null,'',location.pathname); }
+function closeModal(){ $('modal').classList.remove('open'); document.body.style.overflow=''; document.body.classList.remove('modal-open'); $('minfo').innerHTML=''; history.replaceState(null,'',location.pathname); }
 $('mclose').onclick=closeModal;
 $('modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
