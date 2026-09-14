@@ -12,63 +12,124 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TERRAVA — Publicar propiedad</title>
+<meta name="theme-color" content="#0f2e21">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--paper:#FAF6EC;--pasto:#22563E;--pasto-dk:#163b2a;--oro:#C6892B;--oro-soft:#E8B84B;
-    --tierra:#241f18;--linea:#E2D8C2;--muted:#726a5b;--card:#fff;}
+  :root{
+    --paper:#faf6ec; --paper-2:#f5efdf; --pasto:#0f2e21; --pasto-2:#1c4b34;
+    --oro:#c28a30; --oro-2:#e0c68a; --oro-soft:#f6e7c8; --oro-hover:#a97527;
+    --tierra:#241f18; --linea:#e7ddc8; --muted:#726a5b; --muted-2:#5c5648;
+    --wa:#25D366; --wa-dk:#128C7E; --card:#fff;
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--paper);color:var(--tierra);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-  header{background:var(--pasto);color:#fdfbf4;padding:20px 0;border-bottom:4px solid var(--oro);text-align:center}
-  header h1{font-family:'Zilla Slab',serif;letter-spacing:.14em;margin:0;font-size:24px}
-  header p{margin:5px 0 0;font-size:12.5px;color:#cfe3d6}
+  body{margin:0;background:var(--paper);color:var(--tierra);font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+
+  .gaceta{background:#fff;padding:7px 16px;border-bottom:1px solid var(--linea);text-align:center;position:relative}
+  .gaceta::before,.gaceta::after{content:'';position:absolute;left:0;right:0;height:1px;background:var(--oro)}
+  .gaceta::before{top:0}.gaceta::after{bottom:0}
+  .gaceta .kicker{font-family:'Fraunces',serif;font-size:11px;letter-spacing:.22em;color:var(--oro);font-weight:700;margin-bottom:3px}
+  .gaceta h2{font-family:'Lora',serif;font-size:12px;font-weight:600;color:var(--pasto);line-height:1.3;font-style:italic;margin:0}
+
+  header{background:var(--paper);color:var(--tierra);padding:14px 0 12px;border-bottom:1px solid var(--linea)}
+  .brandrow{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:700;font-size:23px;color:var(--oro);flex:none;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .brandtext h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.16em;margin:0;font-size:20px;line-height:1;color:var(--pasto)}
+  .brandtext .sub{font-size:11px;color:var(--oro);font-weight:700;letter-spacing:.14em;margin-top:3px}
+
   .wrap{max-width:560px;margin:0 auto;padding:18px 18px 60px}
-  .volver{display:inline-flex;align-items:center;gap:7px;color:var(--pasto);background:#fff;border:1.5px solid var(--pasto);font:700 14.5px 'Inter',sans-serif;text-decoration:none;padding:10px 16px;border-radius:10px;margin-bottom:16px}
-  .volver:hover{background:var(--pasto);color:#fff}
-  .intro{font-size:14.5px;color:var(--muted);margin:0 0 18px;line-height:1.5}
-  .draftbar{background:#fff7e6;border:1.5px solid var(--oro-soft);border-radius:12px;padding:13px 14px;margin-bottom:18px;font-size:14px}
+
+  .volver{display:inline-flex;align-items:center;gap:7px;color:#8a5a13;background:transparent;border:1px solid var(--oro);font:600 12.5px 'Manrope',sans-serif;text-decoration:none;padding:9px 14px;border-radius:99px;margin-bottom:16px;transition:.15s}
+  .volver:hover{background:rgba(194,138,48,.08)}
+
+  .intro{font-size:14px;color:var(--muted);margin:0 0 18px;line-height:1.5}
+  .draftbar{background:#fff7e6;border:1.5px solid var(--oro);border-radius:12px;padding:13px 14px;margin-bottom:18px;font-size:14px}
   .draftbar .db{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-  .draftbar button{border:none;border-radius:8px;padding:8px 13px;font:600 13px 'Inter';cursor:pointer}
-  .db-cont{background:var(--pasto);color:#fff}.db-new{background:#eee;color:#333}
+  .draftbar button{border:none;border-radius:99px;padding:8px 14px;font:600 13px 'Manrope';cursor:pointer}
+  .db-cont{background:var(--pasto);color:#fff}.db-new{background:#e5e5e5;color:#333}
+
   .field{margin-bottom:16px}
-  label{display:block;font-weight:600;font-size:13.5px;margin-bottom:6px;color:var(--pasto-dk)}
-  input,select,textarea{width:100%;padding:12px 13px;border:1px solid var(--linea);border-radius:10px;font:500 15px 'Inter',sans-serif;background:var(--card);color:var(--tierra)}
-  input:focus,select:focus,textarea:focus{outline:2px solid var(--oro-soft);outline-offset:1px;border-color:var(--oro)}
-  select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23C6892B' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:38px}
+  label{display:block;font-weight:600;font-size:13.5px;margin-bottom:6px;color:var(--pasto);font-family:'Manrope',sans-serif}
+  input,select,textarea{width:100%;padding:12px 13px;border:1px solid var(--linea);border-radius:10px;font:500 15px 'Manrope',sans-serif;background:var(--card);color:var(--tierra);overflow-wrap:break-word;word-break:break-word}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--oro-2);outline-offset:1px;border-color:var(--oro)}
+  select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23c28a30' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:38px}
   .row{display:flex;gap:12px}.row>*{flex:1}
   .hidden{display:none}
+
   .wafield{background:#eafaf0;border:1.6px solid #b7e4c8;border-radius:12px;padding:15px}
   .wafield label{font-size:15px}.wafield input{font-size:17px;font-weight:600}
   .wafield .hint{font-size:12px;color:var(--muted);margin-top:6px}
+
   .uploader{border:1.5px dashed var(--linea);border-radius:10px;padding:12px;background:#fff}
-  .addbtn{background:var(--oro-soft);color:#241a08;border:none;border-radius:8px;padding:10px 15px;font:600 13.5px 'Inter';cursor:pointer}
+  .addbtn{background:var(--oro-soft);color:#8a5a13;border:1px solid var(--oro);border-radius:99px;padding:9px 15px;font:600 13px 'Manrope';cursor:pointer;transition:.15s}
+  .addbtn:hover{background:var(--oro);color:#fff}
   .cnt{font-size:12px;color:var(--muted);margin-top:8px}
   .thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .thumb{position:relative;width:66px;height:66px;border-radius:8px;overflow:hidden;border:1px solid var(--linea);background:#000}
   .thumb img,.thumb video{width:100%;height:100%;object-fit:cover}
   .thumb .rm{position:absolute;top:2px;right:2px;width:19px;height:19px;border:none;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:11px;line-height:19px;text-align:center;cursor:pointer;padding:0}
-  .btn{width:100%;background:var(--pasto);color:#fff;border:none;border-radius:12px;padding:15px;font:700 16px 'Inter',sans-serif;cursor:pointer;margin-top:8px;transition:.15s}
-  .btn:hover{background:var(--pasto-dk)} .btn:disabled{opacity:.6;cursor:default}
+
+  .btn{width:100%;background:var(--pasto);color:#fff;border:none;border-radius:99px;padding:15px;font:700 15.5px 'Manrope',sans-serif;cursor:pointer;margin-top:8px;transition:.15s;letter-spacing:.02em}
+  .btn:hover{background:var(--pasto-2)} .btn:disabled{opacity:.65;cursor:default}
+
+  .progress{display:none;margin-top:14px;padding:14px;background:#fff;border:1px solid var(--linea);border-radius:12px}
+  .progress.active{display:block}
+  .progress .plabel{font-size:13px;font-weight:600;color:var(--pasto);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .progress .plabel .ppct{color:var(--oro);font-weight:800;font-variant-numeric:tabular-nums}
+  .progress .pbar{height:8px;background:var(--paper-2);border-radius:99px;overflow:hidden}
+  .progress .pfill{height:100%;background:linear-gradient(90deg,var(--oro),var(--oro-hover));border-radius:99px;width:0%;transition:width .3s ease}
+  .progress .pmsg{font-size:11.5px;color:var(--muted);margin-top:6px;font-style:italic}
+
   .msg{padding:12px;border-radius:10px;font-size:14px;margin-top:10px;display:none}
-  .msg.err{background:#fdeceb;color:#a3271d;display:block}
+  .msg.err{background:#fdeceb;color:#a3271d;display:block;border:1px solid #f5c2be}
+
   .done{text-align:center;padding:40px 10px} .done .big{font-size:46px}
-  .done h2{font-family:'Zilla Slab',serif;color:var(--pasto);margin:12px 0 8px}
+  .done h2{font-family:'Fraunces',serif;color:var(--pasto);margin:12px 0 8px;font-weight:700}
   .done p{color:var(--muted);font-size:15px;line-height:1.5}
-  .req{color:var(--oro)}
+  .req{color:var(--oro);font-weight:700}
+
   .checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   @media(max-width:480px){.checks{grid-template-columns:1fr}}
   .chk{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--linea);border-radius:10px;padding:11px 12px;font-size:14px;cursor:pointer;font-weight:500}
   .chk input{width:auto;margin:0;accent-color:var(--pasto)}
-  .chk.sel{border-color:var(--pasto);background:#eef6f0}
+  .chk.sel{border-color:var(--oro);background:var(--oro-soft)}
+
   .aceptar{background:#fff;border:1.5px solid var(--linea);border-radius:10px;padding:12px 14px;margin:14px 0 4px;display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#3a352c;line-height:1.4;cursor:pointer}
   .aceptar input{margin-top:2px;flex:none;width:18px;height:18px;accent-color:var(--pasto);cursor:pointer}
   .aceptar a{color:var(--pasto);font-weight:600}
   .aceptar.error{border-color:#c62828;background:#fff5f5}
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  @media(max-width:479px){
+    .brandtext h1{font-size:18px;letter-spacing:.12em}
+    .brandtext .sub{font-size:10px;letter-spacing:.10em}
+    .stamp{width:40px;height:40px;font-size:21px}
+    .wrap{padding:16px 14px 50px}
+    header{padding:12px 0 10px}
+    header .wrap{padding:0 14px}
+    .row{flex-direction:column;gap:0}
+  }
 </style>
 </head>
 <body>
-<header><h1>TERRAVA</h1><p>Publica tu propiedad — es gratis</p></header>
+
+<div class="gaceta">
+  <div class="kicker">◆ TERRAVA ◆</div>
+  <h2>Conectamos oportunidades para el campo colombiano</h2>
+</div>
+
+<header><div class="wrap" style="padding-top:0;padding-bottom:0">
+  <div class="brandrow">
+    <div class="stamp" aria-hidden="true">T</div>
+    <div class="brandtext">
+      <h1>TERRAVA</h1>
+      <div class="sub">PUBLICA TU PROPIEDAD — ES GRATIS</div>
+    </div>
+  </div>
+</div></header>
+
 <div class="wrap">
   <a class="volver" href="index.html">← Volver al catálogo</a>
 
@@ -145,6 +206,13 @@
       <span>He leído y acepto los <a href="terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a> y la <a href="privacidad.html" target="_blank" rel="noopener">Política de Tratamiento de Datos</a>. Autorizo la publicación de mi aviso y el uso de las fotos y videos aportados para mostrarlo en la Plataforma y en piezas promocionales de TERRAVA.</span>
     </label>
     <div class="msg err" id="err"></div>
+
+    <div class="progress" id="progressBox">
+      <div class="plabel"><span id="pTitle">Subiendo…</span><span class="ppct" id="pPct">0%</span></div>
+      <div class="pbar"><div class="pfill" id="pFill"></div></div>
+      <div class="pmsg" id="pMsg">Por favor, no cierres esta ventana.</div>
+    </div>
+
     <button class="btn" id="enviar">Enviar propiedad a revisión</button>
   </div>
   <div id="ok" class="done hidden">
@@ -161,15 +229,12 @@ const $=id=>document.getElementById(id);
 const DEPS=['Amazonas','Antioquia','Arauca','Atlántico','Bolívar','Boyacá','Caldas','Caquetá','Casanare','Cauca','Cesar','Chocó','Córdoba','Cundinamarca','Guainía','Guaviare','Huila','La Guajira','Magdalena','Meta','Nariño','Norte de Santander','Putumayo','Quindío','Risaralda','San Andrés y Providencia','Santander','Sucre','Tolima','Valle del Cauca','Vaupés','Vichada'];
 $('departamento').innerHTML='<option value="">Elige…</option>'+DEPS.map(d=>`<option>${d}</option>`).join('');
 
-// Tipo "Otro"
 function toggleTipoOtro(){ $('tipoOtroField').classList.toggle('hidden', $('tipo').value!=='Otro'); }
 $('tipo').addEventListener('change',toggleTipoOtro);
 
-// Documentos / Vías "Otro"
 $('juridica').addEventListener('change',()=>$('juridicaOtroField').classList.toggle('hidden',$('juridica').value!=='Otro'));
 $('vias').addEventListener('change',()=>$('viasOtroField').classList.toggle('hidden',$('vias').value!=='Otro'));
 
-// Agua (varias fuentes)
 const AGUA=['Quebrada','Río','Pozo profundo','Aljibe','Jagüey','Nacimiento','Acueducto veredal','Otro'];
 $('aguaChecks').innerHTML=AGUA.map(a=>`<label class="chk" data-a="${a}"><input type="checkbox">${a}</label>`).join('');
 $('aguaChecks').addEventListener('change',e=>{
@@ -184,7 +249,6 @@ function aguaSeleccionada(){
   return arr;
 }
 
-// Precio: usa la unidad elegida ("Por hectárea") u "O total"
 function porUnidad(){ const u=$('area_unidad').value; return u==='m²'?'Por m²':'Por '+u.toLowerCase(); }
 function negocioTxt(){
   const n=$('negocio').value;
@@ -228,7 +292,6 @@ function num(v){ return String(v||'').replace(/\D/g,''); }
 function titleCase(s){ return s.trim().toLowerCase().replace(/(^|\s)\p{L}/gu,m=>m.toUpperCase()); }
 function capFirst(s){ s=s.trim(); return s?s.charAt(0).toUpperCase()+s.slice(1):s; }
 
-// Autoguardado
 const DRAFT_KEY='terrava_borrador_propiedad';
 const CAMPOS=['tipo','tipo_otro','area','area_unidad','departamento','municipio','vereda','negocio','precio_modo','precio','juridica','juridica_otro','vias','vias_otro','energia','tiempo_pueblo','agua_otro','observaciones','telefono'];
 function saveDraft(){ const o={}; CAMPOS.forEach(id=>{const el=$(id); if(el)o[id]=el.value;}); o._agua=[...$('aguaChecks').querySelectorAll('input:checked')].map(c=>c.closest('.chk').dataset.a); try{localStorage.setItem(DRAFT_KEY,JSON.stringify(o));}catch(e){} }
@@ -252,6 +315,11 @@ $('form').addEventListener('change',saveDraft);
     $('draftNew').onclick=()=>{ clearDraft(); $('draftBar').classList.add('hidden'); };
   }
 })();
+
+// Progress bar
+function showProgress(title){ $('pTitle').textContent=title; $('pPct').textContent='0%'; $('pFill').style.width='0%'; $('progressBox').classList.add('active'); }
+function updateProgress(i,total,label){ const pct=Math.round((i/total)*100); $('pPct').textContent=pct+'%'; $('pFill').style.width=pct+'%'; if(label) $('pTitle').textContent=label; }
+function hideProgress(){ $('progressBox').classList.remove('active'); }
 
 $('enviar').addEventListener('click', async ()=>{
   $('err').style.display='none'; $('aceptaBox').classList.remove('error');
@@ -277,30 +345,37 @@ $('enviar').addEventListener('click', async ()=>{
   if(fotosArr.length<1)falta.push('al menos 1 foto');
   if(falta.length){ $('err').textContent='Falta: '+falta.join(', ')+'.'; $('err').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); return; }
 
-  $('enviar').disabled=true;
+  $('enviar').disabled=true; $('enviar').textContent='Enviando…';
   try{
     const carpeta='prop-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
-    $('enviar').textContent='Subiendo fotos…';
-    const fUrls=await subir(fotosArr,carpeta,'foto');
-    let vUrls=[]; if(videosArr.length){ $('enviar').textContent='Subiendo videos…'; vUrls=await subir(videosArr,carpeta,'video'); }
+    showProgress('Subiendo fotos…');
+    const fUrls=await subir(fotosArr,carpeta,'foto',(i,t)=>updateProgress(i,t,`Subiendo foto ${i} de ${t}…`));
+    let vUrls=[];
+    if(videosArr.length){
+      showProgress('Subiendo videos…');
+      vUrls=await subir(videosArr,carpeta,'video',(i,t)=>updateProgress(i,t,`Subiendo video ${i} de ${t}…`));
+    }
     r.fotos=fUrls.join(','); r.videos=vUrls.join(',');
-    $('enviar').textContent='Guardando…';
+    $('pTitle').textContent='Guardando…'; $('pPct').textContent=''; $('pFill').style.width='100%';
     const {error}=await sb.from('propiedades').insert(r);
     if(error) throw error;
     clearDraft();
+    hideProgress();
     $('form').classList.add('hidden'); $('ok').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
+    hideProgress();
     $('err').textContent='No se pudo enviar: '+(err.message||err); $('err').style.display='block';
     $('enviar').disabled=false; $('enviar').textContent='Enviar propiedad a revisión';
   }
 });
-async function subir(files,carpeta,tipo){
+async function subir(files,carpeta,tipo,onProgress){
   const urls=[];
   for(let i=0;i<files.length;i++){ const f=files[i]; const ext=(f.name.split('.').pop()||'bin').toLowerCase();
     const path=`propiedades/${carpeta}/${tipo}-${i}-${Date.now()}.${ext}`;
     const {error}=await sb.storage.from('avisos').upload(path,f,{cacheControl:'3600',upsert:false});
     if(error) throw new Error('Al subir '+tipo+': '+error.message);
     urls.push(sb.storage.from('avisos').getPublicUrl(path).data.publicUrl);
+    if(onProgress) onProgress(i+1,files.length);
   } return urls;
 }
 </script>
