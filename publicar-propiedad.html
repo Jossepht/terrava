@@ -171,9 +171,10 @@
       <div style="font-size:12px;color:var(--muted);margin-top:6px">Cómo está la propiedad según el propietario. TERRAVA no verifica documentos.</div></div>
     <div class="field hidden" id="juridicaOtroField"><label>¿Cuál? <span class="req">•</span></label><input id="juridica_otro" placeholder="Describe la situación"></div>
 
-    <div class="field"><label>Agua disponible <span style="color:var(--muted);font-weight:500">(opcional · marca las que apliquen)</span></label>
-      <div class="checks" id="aguaChecks"></div></div>
-    <div class="field hidden" id="aguaOtroField"><label>¿Cuál otra fuente de agua?</label><input id="agua_otro" placeholder="Escribe la fuente"></div>
+    <div class="field"><label>Agua disponible <span style="color:var(--muted);font-weight:500">(opcional)</span></label>
+      <select id="agua_estado"><option value="">Elige…</option><option>Sí tiene agua</option><option>No tiene agua</option><option>No se sabe</option></select></div>
+    <div class="field hidden" id="aguaFuenteField"><label>¿De qué fuente? <span style="color:var(--muted);font-weight:500">(opcional)</span></label>
+      <input id="agua_fuente" placeholder="Ej: quebrada, pozo, acueducto veredal…"></div>
     <div class="field"><label>Acceso / vías <span style="color:var(--muted);font-weight:500">(opcional)</span></label>
       <select id="vias"><option value="">Elige…</option>
         <option>Sobre vía principal</option><option>Vía pavimentada</option><option>Vía destapada</option>
@@ -235,18 +236,15 @@ $('tipo').addEventListener('change',toggleTipoOtro);
 $('juridica').addEventListener('change',()=>$('juridicaOtroField').classList.toggle('hidden',$('juridica').value!=='Otro'));
 $('vias').addEventListener('change',()=>$('viasOtroField').classList.toggle('hidden',$('vias').value!=='Otro'));
 
-const AGUA=['Quebrada','Río','Pozo profundo','Aljibe','Jagüey','Nacimiento','Acueducto veredal','Otro'];
-$('aguaChecks').innerHTML=AGUA.map(a=>`<label class="chk" data-a="${a}"><input type="checkbox">${a}</label>`).join('');
-$('aguaChecks').addEventListener('change',e=>{
-  const l=e.target.closest('.chk'); if(l) l.classList.toggle('sel',e.target.checked);
-  const otro=$('aguaChecks').querySelector('[data-a="Otro"] input');
-  $('aguaOtroField').classList.toggle('hidden', !(otro&&otro.checked));
+$('agua_estado').addEventListener('change',()=>{
+  $('aguaFuenteField').classList.toggle('hidden', $('agua_estado').value!=='Sí tiene agua');
 });
-function aguaSeleccionada(){
-  const arr=[...$('aguaChecks').querySelectorAll('input:checked')].map(c=>c.closest('.chk').dataset.a).filter(x=>x!=='Otro');
-  const otro=$('aguaChecks').querySelector('[data-a="Otro"] input');
-  if(otro&&otro.checked&&$('agua_otro').value.trim()) arr.push(capFirst($('agua_otro').value));
-  return arr;
+function aguaFinalStr(){
+  const estado=$('agua_estado').value;
+  if(!estado) return null;
+  if(estado!=='Sí tiene agua') return estado;
+  const f=$('agua_fuente').value.trim();
+  return f ? `Sí (${capFirst(f)})` : 'Sí tiene agua';
 }
 
 function porUnidad(){ const u=$('area_unidad').value; return u==='m²'?'Por m²':'Por '+u.toLowerCase(); }
@@ -257,7 +255,7 @@ function negocioTxt(){
   return {preg:'El precio de venta es…?', base:'Precio de venta', total:'Precio total de la propiedad'};
 }
 function refreshPrecioModo(){
-  const opts=[porUnidad(),'O total']; const prev=$('precio_modo').value;
+  const opts=[porUnidad(),'Total']; const prev=$('precio_modo').value;
   $('precio_modo').innerHTML=opts.map(o=>`<option>${o}</option>`).join('');
   if(opts.includes(prev)) $('precio_modo').value=prev;
   updatePrecioTextos();
@@ -265,7 +263,7 @@ function refreshPrecioModo(){
 function updatePrecioTextos(){
   const t=negocioTxt(), m=$('precio_modo').value;
   $('precioPregunta').innerHTML=t.preg+' <span class="req">•</span>';
-  const lbl=(m==='O total')? t.total+' (COP)' : `${t.base} ${m.toLowerCase()} (COP)`;
+  const lbl=(m==='Total')? t.total+' (COP)' : `${t.base} ${m.toLowerCase()} (COP)`;
   $('precioLbl').innerHTML=lbl+' <span class="req">•</span>';
 }
 $('area_unidad').addEventListener('change',refreshPrecioModo);
@@ -293,17 +291,16 @@ function titleCase(s){ return s.trim().toLowerCase().replace(/(^|\s)\p{L}/gu,m=>
 function capFirst(s){ s=s.trim(); return s?s.charAt(0).toUpperCase()+s.slice(1):s; }
 
 const DRAFT_KEY='terrava_borrador_propiedad';
-const CAMPOS=['tipo','tipo_otro','area','area_unidad','departamento','municipio','vereda','negocio','precio_modo','precio','juridica','juridica_otro','vias','vias_otro','energia','tiempo_pueblo','agua_otro','observaciones','telefono'];
-function saveDraft(){ const o={}; CAMPOS.forEach(id=>{const el=$(id); if(el)o[id]=el.value;}); o._agua=[...$('aguaChecks').querySelectorAll('input:checked')].map(c=>c.closest('.chk').dataset.a); try{localStorage.setItem(DRAFT_KEY,JSON.stringify(o));}catch(e){} }
+const CAMPOS=['tipo','tipo_otro','area','area_unidad','departamento','municipio','vereda','negocio','precio_modo','precio','juridica','juridica_otro','vias','vias_otro','energia','tiempo_pueblo','agua_estado','agua_fuente','observaciones','telefono'];
+function saveDraft(){ const o={}; CAMPOS.forEach(id=>{const el=$(id); if(el)o[id]=el.value;}); try{localStorage.setItem(DRAFT_KEY,JSON.stringify(o));}catch(e){} }
 function clearDraft(){ try{localStorage.removeItem(DRAFT_KEY);}catch(e){} }
 function restoreDraft(o){
   if(o.area_unidad!=null)$('area_unidad').value=o.area_unidad; refreshPrecioModo();
-  ['tipo','tipo_otro','area','departamento','municipio','vereda','negocio','precio_modo','precio','juridica','juridica_otro','vias','vias_otro','energia','tiempo_pueblo','agua_otro','observaciones','telefono'].forEach(id=>{ if($(id)&&o[id]!=null)$(id).value=o[id]; });
+  ['tipo','tipo_otro','area','departamento','municipio','vereda','negocio','precio_modo','precio','juridica','juridica_otro','vias','vias_otro','energia','tiempo_pueblo','agua_estado','agua_fuente','observaciones','telefono'].forEach(id=>{ if($(id)&&o[id]!=null)$(id).value=o[id]; });
   toggleTipoOtro(); updatePrecioTextos(); $('precio').value=fmtMiles($('precio').value);
   $('juridicaOtroField').classList.toggle('hidden',$('juridica').value!=='Otro');
   $('viasOtroField').classList.toggle('hidden',$('vias').value!=='Otro');
-  if(Array.isArray(o._agua)){ o._agua.forEach(a=>{ const chk=$('aguaChecks').querySelector(`[data-a="${a}"] input`); if(chk){ chk.checked=true; chk.closest('.chk').classList.add('sel'); } });
-    const _ao=$('aguaChecks').querySelector('[data-a="Otro"] input'); $('aguaOtroField').classList.toggle('hidden', !(_ao&&_ao.checked)); }
+  $('aguaFuenteField').classList.toggle('hidden',$('agua_estado').value!=='Sí tiene agua');
 }
 $('form').addEventListener('input',saveDraft);
 $('form').addEventListener('change',saveDraft);
@@ -326,10 +323,10 @@ $('enviar').addEventListener('click', async ()=>{
   if(!sb){ $('err').textContent='No hay conexión con la base de datos. Este archivo debe estar en la carpeta del sitio, junto a config.js.'; $('err').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); return; }
   if(!$('acepta').checked){ $('err').textContent='Debes aceptar los Términos y la Política de Datos para publicar.'; $('err').style.display='block'; $('aceptaBox').classList.add('error'); $('aceptaBox').scrollIntoView({behavior:'smooth',block:'center'}); return; }
   const tipoFinal = $('tipo').value==='Otro' ? capFirst($('tipo_otro').value) : $('tipo').value;
-  const modoFinal = $('precio_modo').value==='O total' ? 'Total' : $('precio_modo').value;
+  const modoFinal = $('precio_modo').value;
   const juridicaFinal = $('juridica').value==='Otro' ? capFirst($('juridica_otro').value) : $('juridica').value;
   const viasFinal = $('vias').value==='Otro' ? capFirst($('vias_otro').value) : $('vias').value;
-  const aguaFinal = aguaSeleccionada().join(', ');
+  const aguaFinal = aguaFinalStr();
   const r={ estado:'Pendiente', tipo:tipoFinal, area:num($('area').value), area_unidad:$('area_unidad').value,
     departamento:$('departamento').value, municipio:titleCase($('municipio').value), vereda:titleCase($('vereda').value),
     negocio:$('negocio').value, precio_modo:modoFinal, precio:num($('precio').value),

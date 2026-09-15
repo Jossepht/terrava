@@ -40,6 +40,8 @@
   label{display:block;font-weight:600;font-size:13.5px;margin-bottom:6px;color:var(--pasto);font-family:'Manrope',sans-serif}
   input,select,textarea{width:100%;padding:12px 13px;border:1px solid var(--linea);border-radius:10px;font:500 15px 'Manrope',sans-serif;background:var(--card);color:var(--tierra);overflow-wrap:break-word;word-break:break-word}
   input:focus,select:focus,textarea:focus{outline:2px solid var(--oro-2);outline-offset:1px;border-color:var(--oro)}
+  select:disabled{background:var(--paper-2);color:var(--muted);cursor:not-allowed;opacity:.85}
+  .auto-hint{font-size:11.5px;color:var(--muted);font-style:italic;margin-top:4px}
   select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23c28a30' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:38px}
   .row{display:flex;gap:12px}.row>*{flex:1}
   .hidden{display:none}
@@ -222,9 +224,10 @@ function fieldsBovino(){
   const esOtro=d.categoria && !cats.includes(d.categoria);
   $('fields').innerHTML=`
     <div class="field"><label>Tipo de ganado <span class="req">•</span></label>
-      <select id="tipo">${opt(['Carne','Leche','Doble Propósito'],d.tipo)}</select></div>
+      <select id="tipo">${opt(['Carne','Leche','Doble Propósito','Reproductor','Hembra pura'],d.tipo)}</select></div>
     <div class="field"><label>Sexo <span class="req">•</span></label>
-      <select id="sexo">${opt(['Hembra','Macho'],d.sexo)}</select></div>
+      <select id="sexo">${opt(['Hembra','Macho'],d.sexo)}</select>
+      <div id="sexoAuto" class="auto-hint hidden">Se define automáticamente por el tipo.</div></div>
     <div class="field ${d.sexo==='Hembra'?'':'hidden'}" id="reproField"><label>Estado de la hembra <span class="req">•</span></label>
       <select id="estado_repro">${opt(['Vacía','Preñada','Con cría','No aplica'],d.estado_repro)}</select></div>
     <div class="field"><label>Categoría <span class="req">•</span></label>
@@ -251,11 +254,30 @@ function fieldsBovino(){
     $('categoria').innerHTML=opt(cats,cats.includes(prev)?prev:'');
     $('catOtroField').classList.toggle('hidden',$('categoria').value!=='Otro');
   };
+  const aplicarTipo=()=>{
+    const t=$('tipo').value;
+    if(t==='Reproductor'){
+      $('sexo').value='Macho'; $('sexo').disabled=true;
+      $('sexoAuto').classList.remove('hidden');
+      $('reproField').classList.add('hidden');
+    }else if(t==='Hembra pura'){
+      $('sexo').value='Hembra'; $('sexo').disabled=true;
+      $('sexoAuto').classList.remove('hidden');
+      $('reproField').classList.remove('hidden');
+    }else{
+      $('sexo').disabled=false;
+      $('sexoAuto').classList.add('hidden');
+      $('reproField').classList.toggle('hidden',$('sexo').value!=='Hembra');
+    }
+    refreshCat();
+  };
+  $('tipo').addEventListener('change',aplicarTipo);
   $('sexo').addEventListener('change',()=>{ $('reproField').classList.toggle('hidden',$('sexo').value!=='Hembra'); refreshCat(); });
   $('estado_repro').addEventListener('change',refreshCat);
   $('categoria').addEventListener('change',()=>$('catOtroField').classList.toggle('hidden',$('categoria').value!=='Otro'));
   ['peso_kg','edad','cantidad'].forEach(id=>$(id).addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'')));
   $('precio').addEventListener('input',e=>e.target.value=fmtMiles(e.target.value));
+  aplicarTipo();
 }
 
 function fieldsPropiedad(){
@@ -285,12 +307,12 @@ function fieldsPropiedad(){
     if(n==='Arriendo') return {preg:'El canon de arriendo es…',base:'Canon de arriendo',total:'Canon de arriendo (total)'};
     if(n==='Permuta')  return {preg:'El valor estimado es…',base:'Valor estimado',total:'Valor estimado total'};
     return {preg:'El precio de venta es…',base:'Precio de venta',total:'Precio total de la propiedad'}; };
-  const modoActual = (d.precio_modo==='Total')?'O total':d.precio_modo;
-  const refreshModo=()=>{ const opts=[porUnidad(),'O total'], prev=$('precio_modo').value||modoActual;
+  const modoActual = d.precio_modo;
+  const refreshModo=()=>{ const opts=[porUnidad(),'Total'], prev=$('precio_modo').value||modoActual;
     $('precio_modo').innerHTML=opt(opts,opts.includes(prev)?prev:opts[0]); updTextos(); };
   const updTextos=()=>{ const t=negocioTxt(), m=$('precio_modo').value;
     $('precioPregunta').innerHTML=t.preg+' <span class="req">•</span>';
-    $('precioLbl').innerHTML=((m==='O total')?t.total:`${t.base} ${m.toLowerCase()}`)+' (COP) <span class="req">•</span>'; };
+    $('precioLbl').innerHTML=((m==='Total')?t.total:`${t.base} ${m.toLowerCase()}`)+' (COP) <span class="req">•</span>'; };
   $('area_unidad').addEventListener('change',refreshModo);
   $('precio_modo').addEventListener('change',updTextos);
   $('negocio').addEventListener('change',updTextos);
@@ -354,7 +376,7 @@ $('enviar').addEventListener('click', async ()=>{
     if(!p.departamento)falta.push('departamento'); if(!p.municipio)falta.push('municipio'); if(!p.precio)falta.push('precio');
   }else{
     const tipoFinal = $('tipo').value==='Otro' ? capFirst($('tipo_otro').value) : $('tipo').value;
-    const modoFinal = $('precio_modo').value==='O total' ? 'Total' : $('precio_modo').value;
+    const modoFinal = $('precio_modo').value;
     p={ tipo:tipoFinal, area:num($('area').value), area_unidad:$('area_unidad').value,
       departamento:$('departamento').value, municipio:titleCase($('municipio').value), vereda:titleCase($('vereda').value),
       negocio:$('negocio').value, precio_modo:modoFinal, precio:num($('precio').value),

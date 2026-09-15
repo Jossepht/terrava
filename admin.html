@@ -49,9 +49,12 @@
   .summary{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:14.5px}
   .summary b{color:var(--pasto);font-weight:700}
 
-  .tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
-  .tab{flex:1;min-width:120px;background:#fff;border:1px solid var(--linea);color:var(--pasto);font:600 12.5px 'Manrope';padding:10px 8px;border-radius:99px;cursor:pointer;white-space:nowrap;transition:.15s}
-  .tab.active{background:var(--oro);border-color:var(--oro);color:#241a08;font-weight:700}
+  .tabs{display:flex;gap:6px;margin-bottom:16px;padding-bottom:2px}
+  .tab{flex:1;min-width:0;background:#fff;border:1px solid var(--linea);color:var(--pasto);font-family:'Manrope';padding:8px 6px;border-radius:22px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.15;text-align:center}
+  .tab .tab-label{font-size:12px;font-weight:600;white-space:nowrap}
+  .tab .tab-count{font-size:10.5px;font-weight:700;opacity:.75}
+  .tab.active{background:var(--oro);border-color:var(--oro);color:#241a08}
+  .tab.active .tab-count{opacity:1}
   .tab:hover:not(.active){background:rgba(194,138,48,.08)}
 
   .empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:15px;font-style:italic;font-family:'Lora',serif}
@@ -87,7 +90,9 @@
     .htitle h1{font-size:18px;letter-spacing:.10em}
     .htitle p{font-size:9.5px}
     .stamp{width:40px;height:40px;font-size:21px}
-    .tab{min-width:100px;font-size:11.5px;padding:9px 6px}
+    .tab{padding:8px 4px}
+    .tab .tab-label{font-size:10.5px}
+    .tab .tab-count{font-size:10px}
     header{padding:12px 0 10px}
   }
 </style>
@@ -120,10 +125,10 @@
   <div class="panel" id="panel">
     <div class="summary" id="summary">Cargando pendientes…</div>
     <div class="tabs">
-      <button class="tab active" data-cat="bovinos" id="tabB">🐄 Bovinos (0)</button>
-      <button class="tab" data-cat="propiedades" id="tabP">🏡 Propiedades (0)</button>
-      <button class="tab" data-cat="vigencia" id="tabV">⏰ Por vencer (0)</button>
-      <button class="tab" data-cat="buscar" id="tabS">🔎 Buscar</button>
+      <button class="tab active" data-cat="bovinos" id="tabB"><span class="tab-label">🐄 Bovinos</span><span class="tab-count">(0)</span></button>
+      <button class="tab" data-cat="propiedades" id="tabP"><span class="tab-label">🏡 Propiedades</span><span class="tab-count">(0)</span></button>
+      <button class="tab" data-cat="vigencia" id="tabV"><span class="tab-label">⏰ Por vencer</span><span class="tab-count">(0)</span></button>
+      <button class="tab" data-cat="buscar" id="tabS"><span class="tab-label">🔎 Buscar</span></button>
     </div>
     <div id="list"></div>
   </div>
@@ -168,8 +173,9 @@ async function cargar(){
     if(a.error) throw a.error; if(p.error) throw p.error;
     AV=a.data||[]; PR=p.data||[];
     const pb=AV.filter(x=>x.estado==='Pendiente').length, pp=PR.filter(x=>x.estado==='Pendiente').length;
-    $('tabB').textContent=`🐄 Bovinos (${pb})`; $('tabP').textContent=`🏡 Propiedades (${pp})`;
-    $('tabV').textContent=`⏰ Por vencer (${vigenciaLista().length})`;
+    $('tabB').innerHTML=`<span class="tab-label">🐄 Bovinos</span><span class="tab-count">(${pb})</span>`;
+    $('tabP').innerHTML=`<span class="tab-label">🏡 Propiedades</span><span class="tab-count">(${pp})</span>`;
+    $('tabV').innerHTML=`<span class="tab-label">⏰ Por vencer</span><span class="tab-count">(${vigenciaLista().length})</span>`;
     $('summary').innerHTML= (pb+pp)? `Tienes <b>${pb+pp}</b> publicación(es) esperando revisión.` : '✅ No hay publicaciones pendientes por ahora.';
     render();
   }catch(err){ $('summary').textContent='Error al cargar: '+(err.message||err); }
@@ -197,7 +203,7 @@ function renderVigencia(){
 function tarjetaVigencia(a,tabla,c){
   const dias=diasRestantes(a), plazo=tabla==='avisos'?30:45;
   const estadoTxt = dias<0 ? `<span style="color:#c0392b;font-weight:700">⚠️ Venció hace ${-dias} día(s)</span>` : `<span style="color:#b06a00;font-weight:700">Vence en ${dias} día(s)</span>`;
-  const titulo = c==='bovinos' ? `Ganado ${a.tipo||''}` : `${a.tipo||'Propiedad'}`;
+  const titulo = c==='bovinos' ? ((a.tipo==='Reproductor'||a.tipo==='Hembra pura')?a.tipo:`Ganado ${a.tipo||''}`) : `${a.tipo||'Propiedad'}`;
   const fotos=a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
   const foto = fotos[0]?`<img src="${fotos[0]}" style="width:58px;height:58px;object-fit:cover;border-radius:8px;border:1px solid var(--linea);flex:none">`:'';
   const tel=waNum(a.telefono);
@@ -267,7 +273,7 @@ function doBuscar(){
 function tarjetaGestion(a,tabla,c){
   const fotos=a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
   const foto=fotos[0]?`<img src="${fotos[0]}" style="width:58px;height:58px;object-fit:cover;border-radius:8px;border:1px solid var(--linea);flex:none">`:'';
-  const titulo = c==='bovinos'?`Ganado ${a.tipo||''}`:`${a.tipo||'Propiedad'}`;
+  const titulo = c==='bovinos'?((a.tipo==='Reproductor'||a.tipo==='Hembra pura')?a.tipo:`Ganado ${a.tipo||''}`):`${a.tipo||'Propiedad'}`;
   const n=veces(a.telefono);
   return `<div class="item" id="item-${tabla}-${a.id}">
     <div class="top" style="display:flex;gap:12px;align-items:flex-start">${foto}
@@ -295,7 +301,7 @@ function tarjeta(a,c){
   let cabeza, filas, precio;
   const fmt=v=>'$'+(Number(v)||0).toLocaleString('es-CO');
   if(c==='bovinos'){
-    cabeza=`<div class="kind">Venta · Ganado ${a.tipo||''}</div><div class="desc">${a.sexo||''}${(a.sexo==='Hembra'&&a.estado_repro&&a.estado_repro!=='No aplica')?' ('+a.estado_repro+')':''} · ${a.categoria||''} · ${a.raza||''}</div>`;
+    cabeza=`<div class="kind">Venta · ${(a.tipo==='Reproductor'||a.tipo==='Hembra pura')?a.tipo:('Ganado '+(a.tipo||''))}</div><div class="desc">${a.sexo||''}${(a.sexo==='Hembra'&&a.estado_repro&&a.estado_repro!=='No aplica')?' ('+a.estado_repro+')':''} · ${a.categoria||''} · ${a.raza||''}</div>`;
     filas=`<div>📍 ${a.municipio||''}, ${a.departamento||''}</div><div>⚖️ ${a.peso_kg||''} kg · ${a.edad||''} ${(a.edad_unidad||'').toLowerCase()} · ${a.cantidad||''} animales</div>`;
     precio=`${fmt(a.precio)} · ${a.precio_modo||''}`;
   }else{

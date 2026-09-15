@@ -345,7 +345,7 @@ function cardBovino(a){
     ${fotoBox(a,'🐄')}</div>
     <div class="cbody">
       <div class="codigo">${a.codigo||''}</div>
-      <div class="kind">Venta · Ganado ${a.tipo||''}</div>
+      <div class="kind">Venta · ${(a.tipo==='Reproductor'||a.tipo==='Hembra pura')?a.tipo:('Ganado '+(a.tipo||''))}</div>
       <div class="desc">${[plz(a.sexo,n)+repro, plz(a.categoria,n), a.raza].filter(Boolean).join(' · ')}</div>
       <div class="meta"><span>📍 ${a.municipio||''}, ${a.departamento||''}</span><span class="det">⚖️ ${a.peso_kg||'?'} kg · ${a.edad||''} ${(a.edad_unidad||'').toLowerCase()}</span><span class="det">🐄 Cantidad: ${a.cantidad||'?'} ${Number(a.cantidad)===1?'animal':'animales'}</span>${a.fecha?`<span>🕒 Publicado ${haceCuanto(a.fecha)}</span>`:''}</div>
       <div class="price">${precioTxt(a)}</div>
@@ -435,7 +435,7 @@ function openModal(a){
   if(bov){
     const n=Number(a.cantidad)||1;
     const repro=(a.sexo==='Hembra'&&a.estado_repro&&a.estado_repro!=='No aplica')?` (${plz(a.estado_repro,n)})`:'';
-    cabeza=`<h2 class="mkind">Venta · Ganado ${a.tipo||''}</h2><p class="mdesc">${plz(a.sexo,n)}${repro} · ${plz(a.categoria,n)} · ${a.raza||''}</p>`;
+    cabeza=`<h2 class="mkind">Venta · ${(a.tipo==='Reproductor'||a.tipo==='Hembra pura')?a.tipo:('Ganado '+(a.tipo||''))}</h2><p class="mdesc">${plz(a.sexo,n)}${repro} · ${plz(a.categoria,n)} · ${a.raza||''}</p>`;
     filas=`<div>📍 <b>${a.municipio||''}, ${a.departamento||''}</b></div><div>⚖️ ${a.peso_kg||'?'} kg · ${a.edad||''} ${(a.edad_unidad||'').toLowerCase()} · ${a.cantidad||''} animales</div>`;
   }else{
     cabeza=`<h2 class="mkind">${a.negocio||'Venta'} · ${a.tipo||'Propiedad'}</h2><p class="mdesc">${areaTxt(a)}</p>`;
