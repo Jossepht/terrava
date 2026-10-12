@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TERRAVA | Ganado y fincas en venta — Mercado rural de Colombia</title>
-<meta name="description" content="TERRAVA es el mercado rural de Colombia: compra y venta de ganado bovino, fincas, lotes y propiedades del campo. Publica tu aviso gratis y contacta por WhatsApp.">
+<meta name="description" content="Encuentra ganado, fincas y propiedades del campo colombiano. Publica tu aviso gratis y sin comisiones.">
 <meta name="keywords" content="ganado en venta, ganado bovino, fincas en venta, lotes, propiedades rurales, mercado rural, Colombia, comprar ganado, vender ganado, TERRAVA">
 <meta name="author" content="TERRAVA">
 <meta name="robots" content="index, follow">
@@ -14,7 +14,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="TERRAVA">
 <meta property="og:title" content="TERRAVA — Mercado rural de Colombia">
-<meta property="og:description" content="Compra y venta de ganado, fincas y propiedades del campo colombiano. Publica tu aviso gratis.">
+<meta property="og:description" content="Encuentra ganado, fincas y propiedades del campo colombiano. Publica tu aviso gratis y sin comisiones.">
 <meta property="og:url" content="https://terrava.com.co/">
 <meta property="og:locale" content="es_CO">
 <meta property="og:image" content="https://terrava.com.co/og-image.jpg">
@@ -23,7 +23,7 @@
 <meta property="og:image:alt" content="TERRAVA — Mercado rural de Colombia">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="TERRAVA — Mercado rural de Colombia">
-<meta name="twitter:description" content="Compra y venta de ganado, fincas y propiedades del campo colombiano. Publica tu aviso gratis.">
+<meta name="twitter:description" content="Encuentra ganado, fincas y propiedades del campo colombiano. Publica tu aviso gratis y sin comisiones.">
 <meta name="twitter:image" content="https://terrava.com.co/og-image.jpg">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"TERRAVA","alternateName":"TERRAVA - Mercado rural de Colombia","url":"https://terrava.com.co/","description":"Mercado rural de Colombia: compra y venta de ganado, fincas y propiedades del campo. Publica tu aviso gratis."}
@@ -51,7 +51,8 @@
   /* ============ HEADER ============ */
   header{background:var(--paper);color:var(--tierra);padding-top:2px}
   .brandrow{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:14px 0 12px;position:relative}
-  .stamp{width:52px;height:52px;flex:none;display:block;object-fit:contain}
+  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;flex:none;padding:5px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .stamp>img{width:100%;height:100%;object-fit:contain;display:block}
   .brandtext h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.16em;margin:0;font-size:20px;line-height:1;color:var(--pasto)}
   .brandtext .sub{font-size:9px;color:var(--oro);font-weight:700;letter-spacing:.15em;margin-top:3px}
   .nav{margin-left:auto;display:flex;gap:8px;align-items:center;position:relative}
@@ -179,18 +180,19 @@
   .share{flex:none;background:#fff;border:1.5px solid var(--wa);color:var(--wa-dk);border-radius:99px;padding:12px 16px;font:700 14px 'Manrope';text-decoration:none;display:flex;align-items:center;gap:7px}
 
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  @media(max-width:359px){ .brandrow{flex-wrap:wrap!important} .nav{margin-left:0!important} }
 
   /* ============ MÓVIL (< 480px) — botones en línea con TERRAVA ============ */
   @media(max-width:479px){
-    .brandtext h1{font-size:18px;letter-spacing:.12em}
-    .brandtext .sub{font-size:8px;letter-spacing:.05em;margin-top:3px}
-    .stamp{width:46px;height:46px}
-    .brandrow{gap:9px;padding:12px 0 10px}
-    .nav{gap:6px}
-    .navpub{padding:8px 12px;font-size:12px;gap:4px}
-    .navpub .plus{font-size:14px}
-    .navpub .car{font-size:8px}
-    .navctc{padding:8px 12px;font-size:12px}
+    .brandtext h1{font-size:16px;letter-spacing:.08em}
+    .brandtext .sub{font-size:7.5px;letter-spacing:.03em;margin-top:2px}
+    .stamp{width:36px;height:36px;padding:3px;border-width:1.5px}
+    .brandrow{gap:7px;padding:10px 0 9px;flex-wrap:nowrap}
+    .nav{gap:5px;margin-left:auto;flex:none}
+    .navpub{padding:7px 10px;font-size:11px;gap:3px}
+    .navpub .plus{font-size:13px}
+    .navpub .car{font-size:7px}
+    .navctc{padding:7px 10px;font-size:11px}
     .fab{padding:9px 14px 9px 12px;font-size:12.5px}
     .fab .plus{font-size:15px}
     .fab-wrap{bottom:16px;right:14px}
@@ -220,7 +222,7 @@
 <!-- =========== HEADER =========== -->
 <header><div class="wrap">
   <div class="brandrow">
-    <img class="stamp" src="logo-terrava.png" alt="TERRAVA" width="52" height="52">
+    <div class="stamp" aria-hidden="true"><img src="logo-terrava.png" alt="TERRAVA"></div>
     <div class="brandtext">
       <h1>TERRAVA</h1>
       <div class="sub">MERCADO RURAL DE COLOMBIA</div>
