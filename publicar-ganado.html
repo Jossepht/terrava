@@ -226,7 +226,10 @@ const DEPS=['Amazonas','Antioquia','Arauca','Atlántico','Bolívar','Boyacá','C
 $('departamento').innerHTML='<option value="">Elige…</option>'+DEPS.map(d=>`<option>${d}</option>`).join('');
 
 function catOpts(){
-  const s=$('sexo').value, e=$('estado_repro').value;
+  const t=$('tipo').value, s=$('sexo').value, e=$('estado_repro').value;
+  // Reproductor y Hembra pura restringen las categorías a las coherentes con raza pura
+  if(t==='Reproductor') return ['Ternero','Torete','Toro','Otro'];
+  if(t==='Hembra pura') return (e==='Preñada'||e==='Con cría')?['Novilla','Vaca','Otro']:['Ternera','Novilla','Vaca','Otro'];
   if(s==='Hembra') return (e==='Preñada'||e==='Con cría')?['Novilla','Vaca','Lote','Otro']:['Ternera','Novilla','Vaca','Lote','Otro'];
   if(s==='Macho') return ['Ternero','Maute','Novillo','Torete','Toro','Lote','Otro'];
   return [];

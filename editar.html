@@ -214,14 +214,17 @@ async function init(){
   wireMedia();
 }
 
-function catOpts(sexo,repro){
+function catOpts(sexo,repro,tipo){
+  // Reproductor y Hembra pura restringen las categorías a las coherentes con raza pura
+  if(tipo==='Reproductor') return ['Ternero','Torete','Toro','Otro'];
+  if(tipo==='Hembra pura') return (repro==='Preñada'||repro==='Con cría')?['Novilla','Vaca','Otro']:['Ternera','Novilla','Vaca','Otro'];
   if(sexo==='Hembra') return (repro==='Preñada'||repro==='Con cría')?['Novilla','Vaca','Lote','Otro']:['Ternera','Novilla','Vaca','Lote','Otro'];
   if(sexo==='Macho') return ['Ternero','Maute','Novillo','Torete','Toro','Lote','Otro'];
   return [];
 }
 function fieldsBovino(){
   const d=DATA;
-  const cats=catOpts(d.sexo,d.estado_repro);
+  const cats=catOpts(d.sexo,d.estado_repro,d.tipo);
   const esOtro=d.categoria && !cats.includes(d.categoria);
   $('fields').innerHTML=`
     <div class="field"><label>Tipo de ganado <span class="req">•</span></label>
@@ -262,7 +265,7 @@ function fieldsBovino(){
     <div class="field"><label id="precioLbl">Precio (COP) <span class="req">•</span></label><input id="precio" inputmode="numeric" value="${fmtMiles(d.precio)}"></div>
     <div class="field"><label>Observaciones</label><textarea id="observaciones" rows="3">${d.observaciones&&d.observaciones!=='Ninguna'?d.observaciones:''}</textarea></div>`;
   const refreshCat=()=>{
-    const cats=catOpts($('sexo').value,$('estado_repro')?$('estado_repro').value:''), prev=$('categoria').value;
+    const cats=catOpts($('sexo').value,$('estado_repro')?$('estado_repro').value:'',$('tipo').value), prev=$('categoria').value;
     $('categoria').innerHTML=opt(cats,cats.includes(prev)?prev:'');
     $('catOtroField').classList.toggle('hidden',$('categoria').value!=='Otro');
   };
