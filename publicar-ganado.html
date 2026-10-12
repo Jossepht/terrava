@@ -36,7 +36,7 @@
   /* HEADER */
   header{background:var(--paper);color:var(--tierra);padding:14px 0 12px;border-bottom:1px solid var(--linea)}
   .brandrow{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
-  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:700;font-size:23px;color:var(--oro);flex:none;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .stamp{width:52px;height:52px;flex:none;display:block;object-fit:contain}
   .brandtext h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.16em;margin:0;font-size:20px;line-height:1;color:var(--pasto)}
   .brandtext .sub{font-size:11px;color:var(--oro);font-weight:700;letter-spacing:.14em;margin-top:3px}
 
@@ -106,7 +106,7 @@
   @media(max-width:479px){
     .brandtext h1{font-size:18px;letter-spacing:.12em}
     .brandtext .sub{font-size:10px;letter-spacing:.10em}
-    .stamp{width:40px;height:40px;font-size:21px}
+    .stamp{width:46px;height:46px}
     .wrap{padding:16px 14px 50px}
     header{padding:12px 0 10px}
     header .wrap{padding:0 14px}
@@ -123,7 +123,7 @@
 
 <header><div class="wrap" style="padding-top:0;padding-bottom:0">
   <div class="brandrow">
-    <div class="stamp" aria-hidden="true">T</div>
+    <img class="stamp" src="logo-terrava.png" alt="TERRAVA" width="52" height="52">
     <div class="brandtext">
       <h1>TERRAVA</h1>
       <div class="sub">PUBLICA TU GANADO — ES GRATIS</div>
@@ -155,10 +155,23 @@
     <div class="field"><label>Raza o cruce <span class="req">•</span></label><input id="raza" placeholder="Ej: Comercial, Brahman, Gyr, Búfalo, Búfalo Murrah…"></div>
     <div class="row">
       <div class="field"><label>Peso prom. (kg) <span class="req">•</span></label><input id="peso_kg" inputmode="numeric" placeholder="380"></div>
-      <div class="field"><label>Cantidad <span class="req">•</span></label><input id="cantidad" inputmode="numeric" placeholder="30"></div>
+      <div class="field"><label>Cantidad <span class="req">•</span></label><input id="cantidad" inputmode="numeric" placeholder="30">
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-size:12.5px;color:var(--muted-2);font-weight:500;cursor:pointer;line-height:1.35">
+          <input type="checkbox" id="cantidad_reservada" style="width:16px;height:16px;flex:none;accent-color:var(--pasto);cursor:pointer;margin-top:1px">
+          <span>Cantidad reservada — <span style="color:var(--muted)">no mostrar el número exacto en el aviso público. Los interesados lo consultan por WhatsApp.</span></span>
+        </label>
+      </div>
     </div>
     <div class="row">
-      <div class="field"><label>Edad <span class="req">•</span></label><input id="edad" inputmode="numeric" placeholder="20"></div>
+      <div class="field"><label>Edad <span class="req">•</span></label>
+        <input id="edad" inputmode="numeric" placeholder="20">
+        <select id="edad_rango" class="hidden">
+          <option value="">Elige el rango…</option>
+          <option>1 a 2</option><option>2 a 3</option><option>3 a 4</option><option>4 a 5</option>
+          <option>5 a 6</option><option>6 a 7</option><option>7 a 8</option><option>8 a 9</option>
+          <option>9 a 10</option><option>10 o más</option>
+        </select>
+      </div>
       <div class="field"><label>Unidad <span class="req">•</span></label><select id="edad_unidad"><option>Meses</option><option>Años</option></select></div>
     </div>
     <div class="field"><label>Departamento <span class="req">•</span></label><select id="departamento"><option value="">Elige…</option></select></div>
@@ -214,7 +227,7 @@ $('departamento').innerHTML='<option value="">Elige…</option>'+DEPS.map(d=>`<o
 function catOpts(){
   const s=$('sexo').value, e=$('estado_repro').value;
   if(s==='Hembra') return (e==='Preñada'||e==='Con cría')?['Novilla','Vaca','Lote','Otro']:['Ternera','Novilla','Vaca','Lote','Otro'];
-  if(s==='Macho') return ['Ternero','Novillo','Toro','Lote','Otro'];
+  if(s==='Macho') return ['Ternero','Maute','Novillo','Toro','Lote','Otro'];
   return [];
 }
 function refreshCat(){
@@ -250,6 +263,19 @@ $('precio_modo').addEventListener('change',()=>{
   $('precioLbl').innerHTML=(m==='Por kilo'?'Precio por kilo (COP)':m==='Por lote'?'Precio total del lote (COP)':'Precio por animal (COP)')+' <span class="req">•</span>';
 });
 ['peso_kg','edad','cantidad','telefono'].forEach(id=>{ $(id).addEventListener('input',e=>{ e.target.value=e.target.value.replace(/\D/g,''); }); });
+// Edad: alterna entre input numérico (Meses) y dropdown de rangos (Años)
+function aplicarEdadUnidad(){
+  const u=$('edad_unidad').value;
+  if(u==='Años'){
+    $('edad').classList.add('hidden');
+    $('edad_rango').classList.remove('hidden');
+  } else {
+    $('edad').classList.remove('hidden');
+    $('edad_rango').classList.add('hidden');
+  }
+}
+$('edad_unidad').addEventListener('change',aplicarEdadUnidad);
+aplicarEdadUnidad();
 function fmtMiles(v){ const n=String(v).replace(/\D/g,''); return n?Number(n).toLocaleString('es-CO'):''; }
 $('precio').addEventListener('input',e=>{ e.target.value=fmtMiles(e.target.value); });
 
@@ -271,16 +297,18 @@ function capFirst(s){ s=s.trim(); return s?s.charAt(0).toUpperCase()+s.slice(1):
 
 // ---- Autoguardado (borrador) ----
 const DRAFT_KEY='terrava_borrador_ganado';
-const CAMPOS=['tipo','sexo','estado_repro','categoria','categoria_otro','raza','peso_kg','edad','edad_unidad','cantidad','departamento','municipio','precio_modo','precio','observaciones','telefono'];
-function saveDraft(){ const o={}; CAMPOS.forEach(id=>{const el=$(id); if(el)o[id]=el.value;}); try{localStorage.setItem(DRAFT_KEY,JSON.stringify(o));}catch(e){} }
+const CAMPOS=['tipo','sexo','estado_repro','categoria','categoria_otro','raza','peso_kg','edad','edad_rango','edad_unidad','cantidad','departamento','municipio','precio_modo','precio','observaciones','telefono'];
+function saveDraft(){ const o={}; CAMPOS.forEach(id=>{const el=$(id); if(el)o[id]=el.value;}); o.cantidad_reservada=$('cantidad_reservada').checked; try{localStorage.setItem(DRAFT_KEY,JSON.stringify(o));}catch(e){} }
 function clearDraft(){ try{localStorage.removeItem(DRAFT_KEY);}catch(e){} }
 function restoreDraft(o){
   ['tipo','sexo','estado_repro'].forEach(id=>{ if(o[id]!=null)$(id).value=o[id]; });
   aplicarTipo();
   if(o.categoria!=null)$('categoria').value=o.categoria; toggleCatOtro();
-  ['categoria_otro','raza','peso_kg','edad','edad_unidad','cantidad','departamento','municipio','precio_modo','precio','observaciones','telefono'].forEach(id=>{ if($(id)&&o[id]!=null)$(id).value=o[id]; });
+  ['categoria_otro','raza','peso_kg','edad','edad_rango','edad_unidad','cantidad','departamento','municipio','precio_modo','precio','observaciones','telefono'].forEach(id=>{ if($(id)&&o[id]!=null)$(id).value=o[id]; });
+  if(o.cantidad_reservada!=null) $('cantidad_reservada').checked=!!o.cantidad_reservada;
   $('precio').value=fmtMiles($('precio').value);
   $('precio_modo').dispatchEvent(new Event('change'));
+  aplicarEdadUnidad();
 }
 $('form').addEventListener('input',saveDraft);
 $('form').addEventListener('change',saveDraft);
@@ -302,11 +330,15 @@ $('enviar').addEventListener('click', async ()=>{
   $('err').style.display='none'; $('aceptaBox').classList.remove('error');
   if(!$('acepta').checked){ $('err').textContent='Debes aceptar los Términos y la Política de Datos para publicar.'; $('err').style.display='block'; $('aceptaBox').classList.add('error'); $('aceptaBox').scrollIntoView({behavior:'smooth',block:'center'}); return; }
   const catFinal = $('categoria').value==='Otro' ? capFirst($('categoria_otro').value) : $('categoria').value;
+  const uEdad=$('edad_unidad').value;
+  const edadNum = uEdad==='Meses' ? (num($('edad').value) ? parseInt(num($('edad').value),10) : null) : null;
+  const edadRango = uEdad==='Años' ? ($('edad_rango').value || null) : null;
   const r={ estado:'Pendiente', tipo:$('tipo').value, sexo:$('sexo').value,
     estado_repro:$('sexo').value==='Hembra'?$('estado_repro').value:'No aplica',
     categoria:catFinal, raza:capFirst($('raza').value),
-    peso_kg:num($('peso_kg').value), edad:num($('edad').value), edad_unidad:$('edad_unidad').value,
-    cantidad:num($('cantidad').value), departamento:$('departamento').value, municipio:titleCase($('municipio').value),
+    peso_kg:num($('peso_kg').value), edad:edadNum, edad_rango:edadRango, edad_unidad:uEdad,
+    cantidad:num($('cantidad').value), cantidad_reservada:$('cantidad_reservada').checked,
+    departamento:$('departamento').value, municipio:titleCase($('municipio').value),
     precio_modo:$('precio_modo').value, precio:num($('precio').value),
     observaciones:$('observaciones').value.trim()||'Ninguna', telefono:num($('telefono').value), chat_id:num($('telefono').value) };
   const falta=[];
@@ -315,7 +347,9 @@ $('enviar').addEventListener('click', async ()=>{
   if(!$('categoria').value)falta.push('categoría');
   if($('categoria').value==='Otro'&&!r.categoria)falta.push('cuál categoría');
   if(!r.raza)falta.push('raza');
-  if(!r.peso_kg)falta.push('peso'); if(!r.cantidad)falta.push('cantidad'); if(!r.edad)falta.push('edad');
+  if(!r.peso_kg)falta.push('peso'); if(!r.cantidad)falta.push('cantidad');
+  if(uEdad==='Meses' && !r.edad) falta.push('edad');
+  if(uEdad==='Años' && !r.edad_rango) falta.push('rango de edad');
   if(!r.departamento)falta.push('departamento'); if(!r.municipio)falta.push('municipio');
   if(!r.precio)falta.push('precio'); if(!r.telefono)falta.push('WhatsApp'); if(fotosArr.length<1)falta.push('al menos 1 foto');
   if(falta.length){ $('err').textContent='Falta: '+falta.join(', ')+'.'; $('err').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); return; }

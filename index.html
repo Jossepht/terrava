@@ -17,9 +17,14 @@
 <meta property="og:description" content="Compra y venta de ganado, fincas y propiedades del campo colombiano. Publica tu aviso gratis.">
 <meta property="og:url" content="https://terrava.com.co/">
 <meta property="og:locale" content="es_CO">
+<meta property="og:image" content="https://terrava.com.co/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TERRAVA — Mercado rural de Colombia">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="TERRAVA — Mercado rural de Colombia">
 <meta name="twitter:description" content="Compra y venta de ganado, fincas y propiedades del campo colombiano. Publica tu aviso gratis.">
+<meta name="twitter:image" content="https://terrava.com.co/og-image.jpg">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"TERRAVA","alternateName":"TERRAVA - Mercado rural de Colombia","url":"https://terrava.com.co/","description":"Mercado rural de Colombia: compra y venta de ganado, fincas y propiedades del campo. Publica tu aviso gratis."}
 </script><link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,7 +51,7 @@
   /* ============ HEADER ============ */
   header{background:var(--paper);color:var(--tierra);padding-top:2px}
   .brandrow{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:14px 0 12px;position:relative}
-  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:700;font-size:23px;color:var(--oro);flex:none;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .stamp{width:52px;height:52px;flex:none;display:block;object-fit:contain}
   .brandtext h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.16em;margin:0;font-size:20px;line-height:1;color:var(--pasto)}
   .brandtext .sub{font-size:9px;color:var(--oro);font-weight:700;letter-spacing:.15em;margin-top:3px}
   .nav{margin-left:auto;display:flex;gap:8px;align-items:center;position:relative}
@@ -67,14 +72,16 @@
   .pubmenu a+a{border-top:1px solid var(--linea)}
   #pubMenu{top:calc(100% + 6px);right:0}
 
+  /* ============ STICKY NAV (pestañas + filtro juntos) ============ */
+  .stickynav{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--linea);box-shadow:0 2px 8px rgba(36,31,24,.04)}
   /* ============ PESTAÑAS ============ */
-  .tabs{display:flex;gap:22px;border-bottom:1px solid var(--linea);padding-top:2px}
+  .tabs{display:flex;gap:22px;border-bottom:1px solid var(--linea);padding-top:2px;background:var(--paper)}
   .tab{background:transparent;border:none;color:var(--muted);font:600 13.5px 'Fraunces',serif;padding:12px 2px 11px;cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
   .tab.active{color:var(--pasto);border-bottom-color:var(--oro)}
   .tab:hover:not(.active){color:var(--pasto-2)}
 
   /* ============ FILTRO ============ */
-  .filterbar{background:var(--paper);border-bottom:1px solid var(--linea);position:sticky;top:0;z-index:5;padding:11px 0}
+  .filterbar{background:var(--paper);padding:9px 0 9px}
   .filterbar .wrap{display:flex;align-items:center;gap:10px}
   .filterlbl{font-style:italic;font-family:'Fraunces',serif;font-weight:600;color:var(--muted-2);font-size:12.5px;flex:none}
   .depsel{flex:1;max-width:360px;background:#fff;color:var(--tierra);border:1px solid #d4c9b0;border-radius:10px;padding:9px 36px 9px 12px;font:500 12.5px 'Manrope';appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23c28a30' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
@@ -177,7 +184,7 @@
   @media(max-width:479px){
     .brandtext h1{font-size:18px;letter-spacing:.12em}
     .brandtext .sub{font-size:8px;letter-spacing:.05em;margin-top:3px}
-    .stamp{width:40px;height:40px;font-size:21px}
+    .stamp{width:46px;height:46px}
     .brandrow{gap:9px;padding:12px 0 10px}
     .nav{gap:6px}
     .navpub{padding:8px 12px;font-size:12px;gap:4px}
@@ -213,7 +220,7 @@
 <!-- =========== HEADER =========== -->
 <header><div class="wrap">
   <div class="brandrow">
-    <div class="stamp" aria-hidden="true">T</div>
+    <img class="stamp" src="logo-terrava.png" alt="TERRAVA" width="52" height="52">
     <div class="brandtext">
       <h1>TERRAVA</h1>
       <div class="sub">MERCADO RURAL DE COLOMBIA</div>
@@ -227,17 +234,21 @@
       </div>
     </nav>
   </div>
-  <div class="tabs">
-    <button class="tab active" data-cat="inicio">Inicio</button>
-    <button class="tab" data-cat="bovinos">Bovinos</button>
-    <button class="tab" data-cat="propiedades">Propiedades</button>
-  </div>
 </div></header>
 
-<div class="filterbar"><div class="wrap">
-  <label class="filterlbl" for="depSelect">Región</label>
-  <select id="depSelect" class="depsel"></select>
-</div></div>
+<div class="stickynav">
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab active" data-cat="inicio">Inicio</button>
+      <button class="tab" data-cat="bovinos">Bovinos</button>
+      <button class="tab" data-cat="propiedades">Propiedades</button>
+    </div>
+  </div>
+  <div class="filterbar"><div class="wrap">
+    <label class="filterlbl" for="depSelect">Región</label>
+    <select id="depSelect" class="depsel"></select>
+  </div></div>
+</div>
 
 <main class="wrap">
   <div class="count" id="count"></div>
@@ -288,7 +299,14 @@ const $=id=>document.getElementById(id);
 if(typeof WHATSAPP!=='undefined'){ $('contactoBtn').href=`https://wa.me/${WHATSAPP}?text=`+encodeURIComponent('Hola Terrava, tengo una consulta'); $('footWa').href=$('contactoBtn').href; }
 
 const DEPARTAMENTOS=['Amazonas','Antioquia','Arauca','Atlántico','Bolívar','Boyacá','Caldas','Caquetá','Casanare','Cauca','Cesar','Chocó','Córdoba','Cundinamarca','Guainía','Guaviare','Huila','La Guajira','Magdalena','Meta','Nariño','Norte de Santander','Putumayo','Quindío','Risaralda','San Andrés y Providencia','Santander','Sucre','Tolima','Valle del Cauca','Vaupés','Vichada'];
-const PLURAL={'Hembra':'Hembras','Macho':'Machos','Vacía':'Vacías','Preñada':'Preñadas','Con cría':'Con crías','No aplica':'No aplica','Ternera':'Terneras','Novilla':'Novillas','Vaca':'Vacas','Ternero':'Terneros','Novillo':'Novillos','Toro':'Toros','Lote':'Lote','Otro':'Otros'};
+const PLURAL={'Hembra':'Hembras','Macho':'Machos','Vacía':'Vacías','Preñada':'Preñadas','Con cría':'Con crías','No aplica':'No aplica','Ternera':'Terneras','Novilla':'Novillas','Vaca':'Vacas','Ternero':'Terneros','Maute':'Mautes','Novillo':'Novillos','Toro':'Toros','Lote':'Lote','Otro':'Otros'};
+// Formatea edad para catálogo: rango si unidad=Años con edad_rango lleno; número si Meses.
+function edadTxt(a){
+  const u=(a.edad_unidad||'').toLowerCase();
+  if(u==='años' && a.edad_rango) return a.edad_rango+' años';
+  if(a.edad!=null && a.edad!=='') return a.edad+' '+u;
+  return '';
+}
 const plz=(w,n)=>(n>1&&PLURAL[w])?PLURAL[w]:w;
 const UAREA={'Hectárea':'Hectáreas','Fanegada':'Fanegadas','Cuadra':'Cuadras','m²':'m²'};
 const areaTxt=a=>`${a.area||''} ${(Number(a.area)>1&&UAREA[a.area_unidad])?UAREA[a.area_unidad]:(a.area_unidad||'')}`.trim();
@@ -315,6 +333,25 @@ function haceCuanto(fecha){
   const h=s/3600; if(h<24) return 'hace '+Math.floor(h)+' h';
   const d=h/24; if(d<30) { const n=Math.floor(d); return 'hace '+n+' día'+(n>1?'s':''); }
   const m=Math.floor(d/30); return 'hace '+m+' mes'+(m>1?'es':'');
+}
+
+// ---- Rotación diaria en pestaña Inicio ----
+// Colombia es UTC-5 sin DST, así que 00:00 hora Colombia = 05:00 UTC.
+function inicioDiaColombia(offsetDays){
+  const partes=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).split('-');
+  return Date.UTC(+partes[0], +partes[1]-1, +partes[2], 5, 0, 0) + (offsetDays||0)*86400000;
+}
+function fechaCoSeed(){
+  const s=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  return parseInt(s.replace(/-/g,''),10)>>>0; // ej. 20261011
+}
+function seededShuffle(arr, seed){
+  // Mulberry32 PRNG + Fisher-Yates → mismo orden para todos los visitantes en el mismo día.
+  let s=(seed||1)>>>0;
+  const rand=()=>{ s=s+0x6D2B79F5|0; let t=Math.imul(s^s>>>15, 1|s); t=t+Math.imul(t^t>>>7, 61|t)^t; return ((t^t>>>14)>>>0)/4294967296; };
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(rand()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
 }
 
 const sb=(typeof SUPABASE_URL!=='undefined')?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
@@ -347,7 +384,7 @@ function cardBovino(a){
       <div class="codigo">${a.codigo||''}</div>
       <div class="kind">Venta · ${(a.tipo==='Reproductor'||a.tipo==='Hembra pura')?a.tipo:('Ganado '+(a.tipo||''))}</div>
       <div class="desc">${[plz(a.sexo,n)+repro, plz(a.categoria,n), a.raza].filter(Boolean).join(' · ')}</div>
-      <div class="meta"><span>📍 ${a.municipio||''}, ${a.departamento||''}</span><span class="det">⚖️ ${a.peso_kg||'?'} kg · ${a.edad||''} ${(a.edad_unidad||'').toLowerCase()}</span><span class="det">🐄 Cantidad: ${a.cantidad||'?'} ${Number(a.cantidad)===1?'animal':'animales'}</span>${a.fecha?`<span>🕒 Publicado ${haceCuanto(a.fecha)}</span>`:''}</div>
+      <div class="meta"><span>📍 ${a.municipio||''}, ${a.departamento||''}</span><span class="det">⚖️ ${a.peso_kg||'?'} kg · ${edadTxt(a)}</span><span class="det">🐄 Cantidad: ${a.cantidad_reservada?'Reservada':`${a.cantidad||'?'} ${Number(a.cantidad)===1?'animal':'animales'}`}</span>${a.fecha?`<span>🕒 Publicado ${haceCuanto(a.fecha)}</span>`:''}</div>
       <div class="price">${precioTxt(a)}</div>
       <div class="vermas">Ver publicación completa →</div>
       ${botonContacto(a,msg)}
@@ -436,7 +473,7 @@ function openModal(a){
     const n=Number(a.cantidad)||1;
     const repro=(a.sexo==='Hembra'&&a.estado_repro&&a.estado_repro!=='No aplica')?` (${plz(a.estado_repro,n)})`:'';
     cabeza=`<h2 class="mkind">Venta · ${(a.tipo==='Reproductor'||a.tipo==='Hembra pura')?a.tipo:('Ganado '+(a.tipo||''))}</h2><p class="mdesc">${plz(a.sexo,n)}${repro} · ${plz(a.categoria,n)} · ${a.raza||''}</p>`;
-    filas=`<div>📍 <b>${a.municipio||''}, ${a.departamento||''}</b></div><div>⚖️ ${a.peso_kg||'?'} kg · ${a.edad||''} ${(a.edad_unidad||'').toLowerCase()} · ${a.cantidad||''} animales</div>`;
+    filas=`<div>📍 <b>${a.municipio||''}, ${a.departamento||''}</b></div><div>⚖️ ${a.peso_kg||'?'} kg · ${edadTxt(a)} · ${a.cantidad_reservada?'Cantidad reservada':`${a.cantidad||''} ${Number(a.cantidad)===1?'animal':'animales'}`}</div>`;
   }else{
     cabeza=`<h2 class="mkind">${a.negocio||'Venta'} · ${a.tipo||'Propiedad'}</h2><p class="mdesc">${areaTxt(a)}</p>`;
     const aguaFull=String(a.agua||'').split(',').map(s=>s.trim()).filter(Boolean).join(', ');
@@ -474,8 +511,8 @@ async function cargar(){
   stateEl.style.display='block'; stateEl.textContent='Cargando…'; grid.innerHTML=''; countEl.textContent='';
   $('sentinel').style.display='none'; $('finLista').style.display='none';
   try{
-    const hace3=new Date(Date.now()-3*86400000).toISOString();
-    const filtro=`estado.eq.Aprobado,and(estado.eq.Vendido,vendido_fecha.gte.${hace3})`;
+    const hace7=new Date(Date.now()-7*86400000).toISOString();
+    const filtro=`estado.eq.Aprobado,and(estado.eq.Vendido,vendido_fecha.gte.${hace7})`;
     if(cat==='inicio'){
       const [rb,rp]=await Promise.all([
         sb.from('avisos').select('*').or(filtro),
@@ -488,7 +525,25 @@ async function cargar(){
       const {data,error}=await sb.from(tabla).select('*').or(filtro);
       if(error) throw error; ITEMS=data||[];
     }
-    ITEMS.sort((a,b)=>{ const av=a.estado==='Vendido'?1:0, bv=b.estado==='Vendido'?1:0; if(av!==bv) return av-bv; return new Date(b.fecha||0)-new Date(a.fecha||0); });
+    // Ordenamiento:
+    // - Pestaña Inicio: rotación diaria — NUEVOS (últimos 2 días calendario Colombia) por fecha DESC,
+    //   MEDIO rotado con semilla del día (mismo orden para todos durante 24h), VENDIDOS al final.
+    // - Pestañas Bovinos / Propiedades: orden clásico (vendidos abajo, resto por fecha DESC).
+    if(cat==='inicio'){
+      const nuevos=[], vendidos=[], medio=[];
+      const desde=inicioDiaColombia(-1); // ayer 00:00 hora Colombia
+      for(const a of ITEMS){
+        if(a.estado==='Vendido') vendidos.push(a);
+        else if(new Date(a.fecha||0).getTime() >= desde) nuevos.push(a);
+        else medio.push(a);
+      }
+      const porFecha=(x,y)=>new Date(y.fecha||0)-new Date(x.fecha||0);
+      nuevos.sort(porFecha); vendidos.sort(porFecha);
+      const medioRot=seededShuffle(medio, fechaCoSeed());
+      ITEMS=[...nuevos, ...medioRot, ...vendidos];
+    } else {
+      ITEMS.sort((a,b)=>{ const av=a.estado==='Vendido'?1:0, bv=b.estado==='Vendido'?1:0; if(av!==bv) return av-bv; return new Date(b.fecha||0)-new Date(a.fecha||0); });
+    }
     render(); abrirPendiente();
   }catch(err){ stateEl.textContent='No pude conectar. Revisa la URL y la llave. ('+(err.message||err)+')'; }
 }

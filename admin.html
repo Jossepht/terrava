@@ -27,7 +27,7 @@
   header{background:var(--paper);color:var(--tierra);padding:14px 0 12px;border-bottom:1px solid var(--linea)}
   .wrap{max-width:760px;margin:0 auto;padding:0 16px}
   .hrow{display:flex;align-items:center;gap:12px}
-  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:700;font-size:23px;color:var(--oro);flex:none;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .stamp{width:52px;height:52px;flex:none;display:block;object-fit:contain}
   .htitle h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.14em;margin:0;font-size:20px;color:var(--pasto);line-height:1}
   .htitle p{margin:3px 0 0;font-size:10.5px;color:var(--oro);font-weight:700;letter-spacing:.14em}
   .logout{margin-left:auto;background:transparent;border:1px solid var(--oro);color:#8a5a13;font:600 12px 'Manrope';padding:9px 14px;border-radius:99px;cursor:pointer;white-space:nowrap;transition:.15s}
@@ -89,7 +89,7 @@
   @media(max-width:479px){
     .htitle h1{font-size:18px;letter-spacing:.10em}
     .htitle p{font-size:9.5px}
-    .stamp{width:40px;height:40px;font-size:21px}
+    .stamp{width:46px;height:46px}
     .tab{padding:8px 4px}
     .tab .tab-label{font-size:10.5px}
     .tab .tab-count{font-size:10px}
@@ -105,7 +105,7 @@
 </div>
 
 <header><div class="wrap hrow">
-  <div class="stamp">T</div>
+  <img class="stamp" src="logo-terrava.png" alt="TERRAVA" width="52" height="52">
   <div class="htitle"><h1>TERRAVA</h1><p>ADMINISTRACIÓN</p></div>
   <button class="logout" id="logout" style="display:none">Cerrar sesión</button>
 </div></header>
@@ -145,6 +145,12 @@ const waNum=t=>{ t=String(t||'').replace(/\D/g,''); return t.length===10?'57'+t:
 let AV=[], PR=[], cat='bovinos';
 
 function toast(t){ const el=$('toast'); el.textContent=t; el.style.display='block'; setTimeout(()=>el.style.display='none',2600); }
+function edadTxt(a){
+  const u=(a.edad_unidad||'').toLowerCase();
+  if(u==='años' && a.edad_rango) return a.edad_rango+' años';
+  if(a.edad!=null && a.edad!=='') return a.edad+' '+u;
+  return '';
+}
 
 async function initSesion(){
   const { data:{ session } } = await sb.auth.getSession();
@@ -207,7 +213,7 @@ function tarjetaVigencia(a,tabla,c){
   const fotos=a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
   const foto = fotos[0]?`<img src="${fotos[0]}" style="width:58px;height:58px;object-fit:cover;border-radius:8px;border:1px solid var(--linea);flex:none">`:'';
   const tel=waNum(a.telefono);
-  const msg=encodeURIComponent(`Hola, soy el administrador de TERRAVA. Tu aviso ${a.codigo} lleva un tiempo publicado. ¿Sigue disponible? Si ya lo vendiste lo retiramos; si sigue en venta lo renovamos por ${plazo} días más. ¡Gracias!`);
+  const msg=encodeURIComponent(`Hola, soy el administrador de TERRAVA. Tu aviso ${a.codigo} lleva un tiempo publicado. ¿Sigue disponible? Si ya lo vendiste lo retiramos; si sigue en venta lo renovamos por ${plazo} días más. ¡Gracias!\n\n👉 https://terrava.com.co/#${a.codigo}`);
   return `<div class="item" id="item-${tabla}-${a.id}">
     <div class="top" style="display:flex;gap:12px;align-items:flex-start">${foto}
       <div style="flex:1">
@@ -219,6 +225,7 @@ function tarjetaVigencia(a,tabla,c){
     <div class="actions">
       <button class="ap" onclick="renovar('${tabla}',${a.id})">🔄 Renovar ${plazo} días</button>
       ${tel?`<a class="notify" href="https://wa.me/${tel}?text=${msg}" target="_blank" rel="noopener">📲 Preguntar</a>`:''}
+      <button class="ap" style="background:#1c7c4a" onclick="marcarVendido('${tabla}',${a.id})">🏷️ Vendido</button>
       <button class="bl" onclick="retirar('${tabla}',${a.id})">🗑️ Retirar</button>
     </div>
   </div>`;
@@ -302,7 +309,7 @@ function tarjeta(a,c){
   const fmt=v=>'$'+(Number(v)||0).toLocaleString('es-CO');
   if(c==='bovinos'){
     cabeza=`<div class="kind">Venta · ${(a.tipo==='Reproductor'||a.tipo==='Hembra pura')?a.tipo:('Ganado '+(a.tipo||''))}</div><div class="desc">${a.sexo||''}${(a.sexo==='Hembra'&&a.estado_repro&&a.estado_repro!=='No aplica')?' ('+a.estado_repro+')':''} · ${a.categoria||''} · ${a.raza||''}</div>`;
-    filas=`<div>📍 ${a.municipio||''}, ${a.departamento||''}</div><div>⚖️ ${a.peso_kg||''} kg · ${a.edad||''} ${(a.edad_unidad||'').toLowerCase()} · ${a.cantidad||''} animales</div>`;
+    filas=`<div>📍 ${a.municipio||''}, ${a.departamento||''}</div><div>⚖️ ${a.peso_kg||''} kg · ${edadTxt(a)} · ${a.cantidad||''} ${Number(a.cantidad)===1?'animal':'animales'}${a.cantidad_reservada?' <span style="color:#8a5a13;font-style:italic;font-size:12px">(reservada al público)</span>':''}</div>`;
     precio=`${fmt(a.precio)} · ${a.precio_modo||''}`;
   }else{
     cabeza=`<div class="kind">${a.negocio||'Venta'} · ${a.tipo||'Propiedad'}</div><div class="desc">${a.area||''} ${a.area_unidad||''}</div>`;
@@ -330,13 +337,10 @@ function tarjeta(a,c){
 }
 
 function msgAprobado(codigo,link){
-  let t=`¡Hola! 👋 Tu aviso ${codigo} fue APROBADO y ya está publicado en TERRAVA. 🎉\n\n`;
-  t+=`👉 Míralo en el catálogo:\nhttps://terrava.com.co/#${codigo}\n\n`;
-  t+=`Puedes compartir ese enlace con quien quieras. Los interesados te escribirán directamente por WhatsApp.\n\n`;
+  let t=`¡Hola! 🎉 Tu aviso ${codigo} fue APROBADO en TERRAVA.\n\n`;
+  t+=`👉 Míralo y compártelo: https://terrava.com.co/#${codigo}\n\n`;
   if(link){
-    t+=`🔒 GUARDA ESTE MENSAJE\n`;
-    t+=`Cuando LO VENDAS o necesites corregir algún dato, usa este enlace privado (no lo compartas):\n${link}\n\n`;
-    t+=`⚠️ Solo entra a ese enlace cuando de verdad necesites editar o marcar como vendido. Si solo quieres ver tu aviso, usa el link del catálogo de arriba.`;
+    t+=`🔒 Guarda este enlace privado — es el único con el que puedes editar o marcar tu aviso como vendido (no lo compartas):\n${link}`;
   }
   return encodeURIComponent(t);
 }
@@ -365,7 +369,7 @@ async function aprobar(tabla,id,tel,codigo,token){
   hecho(tabla,id,'✅ Aprobado y publicado en el catálogo', waNum(tel), msgAprobado(codigo, editLink(tabla,codigo,token)));
 }
 async function marcarVendido(tabla,id){
-  if(!confirm('¿Marcar este aviso como VENDIDO?\n\nSe mostrará con el sello "¡VENDIDO!" y bajará solo del catálogo en 3 días.')) return;
+  if(!confirm('¿Marcar este aviso como VENDIDO?\n\nSe mostrará con el sello "¡VENDIDO!" y bajará solo del catálogo en 7 días.')) return;
   const { error }=await sb.from(tabla).update({estado:'Vendido', vendido_fecha:new Date().toISOString()}).eq('id',id);
   if(error){ toast('Error: '+error.message); return; }
   toast('🏷️ Marcado como vendido'); cargar();

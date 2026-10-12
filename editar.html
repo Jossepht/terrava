@@ -26,7 +26,7 @@
 
   header{background:var(--paper);color:var(--tierra);padding:14px 0 12px;border-bottom:1px solid var(--linea)}
   .brandrow{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
-  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:700;font-size:23px;color:var(--oro);flex:none;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .stamp{width:52px;height:52px;flex:none;display:block;object-fit:contain}
   .brandtext h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.16em;margin:0;font-size:20px;line-height:1;color:var(--pasto)}
   .brandtext .sub{font-size:11px;color:var(--oro);font-weight:700;letter-spacing:.14em;margin-top:3px}
 
@@ -95,7 +95,7 @@
   @media(max-width:479px){
     .brandtext h1{font-size:18px;letter-spacing:.12em}
     .brandtext .sub{font-size:10px;letter-spacing:.10em}
-    .stamp{width:40px;height:40px;font-size:21px}
+    .stamp{width:46px;height:46px}
     .wrap{padding:16px 14px 50px}
     header{padding:12px 0 10px}
     header .wrap{padding:0 14px}
@@ -112,7 +112,7 @@
 
 <header><div class="wrap" style="padding-top:0;padding-bottom:0">
   <div class="brandrow">
-    <div class="stamp" aria-hidden="true">T</div>
+    <img class="stamp" src="logo-terrava.png" alt="TERRAVA" width="52" height="52">
     <div class="brandtext">
       <h1>TERRAVA</h1>
       <div class="sub">TU PUBLICACIÓN</div>
@@ -174,7 +174,7 @@
 
   <div id="okVendido" class="done hidden">
     <div class="big">🎉</div><h2>¡Marcado como vendido!</h2>
-    <p>Tu aviso se mostrará con el sello "¡VENDIDO!" unos días y luego baja solo. ¡Felicitaciones por tu venta y gracias por usar TERRAVA! 🐄🏡🇨🇴</p>
+    <p>Tu aviso se mostrará con el sello "¡VENDIDO!" durante 7 días y luego baja solo. ¡Felicitaciones por tu venta y gracias por usar TERRAVA! 🐄🏡🇨🇴</p>
   </div>
 </div>
 
@@ -215,7 +215,7 @@ async function init(){
 
 function catOpts(sexo,repro){
   if(sexo==='Hembra') return (repro==='Preñada'||repro==='Con cría')?['Novilla','Vaca','Lote','Otro']:['Ternera','Novilla','Vaca','Lote','Otro'];
-  if(sexo==='Macho') return ['Ternero','Novillo','Toro','Lote','Otro'];
+  if(sexo==='Macho') return ['Ternero','Maute','Novillo','Toro','Lote','Otro'];
   return [];
 }
 function fieldsBovino(){
@@ -237,10 +237,21 @@ function fieldsBovino(){
     <div class="field"><label>Raza o cruce <span class="req">•</span></label><input id="raza" value="${d.raza||''}"></div>
     <div class="row">
       <div class="field"><label>Peso prom. (kg) <span class="req">•</span></label><input id="peso_kg" inputmode="numeric" value="${d.peso_kg||''}"></div>
-      <div class="field"><label>Cantidad <span class="req">•</span></label><input id="cantidad" inputmode="numeric" value="${d.cantidad||''}"></div>
+      <div class="field"><label>Cantidad <span class="req">•</span></label><input id="cantidad" inputmode="numeric" value="${d.cantidad||''}">
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-size:12.5px;color:var(--muted-2);font-weight:500;cursor:pointer;line-height:1.35">
+          <input type="checkbox" id="cantidad_reservada"${d.cantidad_reservada?' checked':''} style="width:16px;height:16px;flex:none;accent-color:var(--pasto);cursor:pointer;margin-top:1px">
+          <span>Cantidad reservada — <span style="color:var(--muted)">no mostrar el número exacto en el aviso público.</span></span>
+        </label>
+      </div>
     </div>
     <div class="row">
-      <div class="field"><label>Edad <span class="req">•</span></label><input id="edad" inputmode="numeric" value="${d.edad||''}"></div>
+      <div class="field"><label>Edad <span class="req">•</span></label>
+        <input id="edad" inputmode="numeric" value="${d.edad||''}">
+        <select id="edad_rango" class="hidden">
+          <option value="">Elige el rango…</option>
+          ${['1 a 2','2 a 3','3 a 4','4 a 5','5 a 6','6 a 7','7 a 8','8 a 9','9 a 10','10 o más'].map(r=>`<option${r===d.edad_rango?' selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
       <div class="field"><label>Unidad <span class="req">•</span></label><select id="edad_unidad">${opt(['Meses','Años'],d.edad_unidad)}</select></div>
     </div>
     <div class="field"><label>Departamento <span class="req">•</span></label><select id="departamento">${depSel(d.departamento)}</select></div>
@@ -271,13 +282,20 @@ function fieldsBovino(){
     }
     refreshCat();
   };
+  const aplicarEdadUnidad=()=>{
+    const u=$('edad_unidad').value;
+    if(u==='Años'){ $('edad').classList.add('hidden'); $('edad_rango').classList.remove('hidden'); }
+    else { $('edad').classList.remove('hidden'); $('edad_rango').classList.add('hidden'); }
+  };
   $('tipo').addEventListener('change',aplicarTipo);
   $('sexo').addEventListener('change',()=>{ $('reproField').classList.toggle('hidden',$('sexo').value!=='Hembra'); refreshCat(); });
   $('estado_repro').addEventListener('change',refreshCat);
   $('categoria').addEventListener('change',()=>$('catOtroField').classList.toggle('hidden',$('categoria').value!=='Otro'));
   ['peso_kg','edad','cantidad'].forEach(id=>$(id).addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'')));
   $('precio').addEventListener('input',e=>e.target.value=fmtMiles(e.target.value));
+  $('edad_unidad').addEventListener('change',aplicarEdadUnidad);
   aplicarTipo();
+  aplicarEdadUnidad();
 }
 
 function fieldsPropiedad(){
@@ -364,15 +382,21 @@ $('enviar').addEventListener('click', async ()=>{
   let p={}, falta=[];
   if(TABLA==='avisos'){
     const catFinal = $('categoria').value==='Otro' ? capFirst($('categoria_otro').value) : $('categoria').value;
+    const uEdad=$('edad_unidad').value;
+    const edadNum = uEdad==='Meses' ? (num($('edad').value) ? parseInt(num($('edad').value),10) : null) : null;
+    const edadRango = uEdad==='Años' ? ($('edad_rango').value || null) : null;
     p={ tipo:$('tipo').value, sexo:$('sexo').value,
       estado_repro:$('sexo').value==='Hembra'?$('estado_repro').value:'No aplica',
       categoria:catFinal, raza:capFirst($('raza').value),
-      peso_kg:num($('peso_kg').value), edad:num($('edad').value), edad_unidad:$('edad_unidad').value,
-      cantidad:num($('cantidad').value), departamento:$('departamento').value, municipio:titleCase($('municipio').value),
+      peso_kg:num($('peso_kg').value), edad:edadNum, edad_rango:edadRango, edad_unidad:uEdad,
+      cantidad:num($('cantidad').value), cantidad_reservada:$('cantidad_reservada').checked,
+      departamento:$('departamento').value, municipio:titleCase($('municipio').value),
       precio_modo:$('precio_modo').value, precio:num($('precio').value),
       observaciones:$('observaciones').value.trim()||'Ninguna', telefono:num($('telefono').value) };
     if(!p.tipo)falta.push('tipo'); if(!p.categoria)falta.push('categoría'); if(!p.raza)falta.push('raza');
-    if(!p.peso_kg)falta.push('peso'); if(!p.cantidad)falta.push('cantidad'); if(!p.edad)falta.push('edad');
+    if(!p.peso_kg)falta.push('peso'); if(!p.cantidad)falta.push('cantidad');
+    if(uEdad==='Meses' && !p.edad) falta.push('edad');
+    if(uEdad==='Años' && !p.edad_rango) falta.push('rango de edad');
     if(!p.departamento)falta.push('departamento'); if(!p.municipio)falta.push('municipio'); if(!p.precio)falta.push('precio');
   }else{
     const tipoFinal = $('tipo').value==='Otro' ? capFirst($('tipo_otro').value) : $('tipo').value;
@@ -423,7 +447,7 @@ $('enviar').addEventListener('click', async ()=>{
 });
 
 $('btnVendido').addEventListener('click', async ()=>{
-  if(!confirm('¿Confirmas que YA VENDISTE este ganado/propiedad? Tu aviso se marcará como VENDIDO y se retirará del catálogo en unos días.')) return;
+  if(!confirm('¿Confirmas que YA VENDISTE este ganado/propiedad? Tu aviso se marcará como VENDIDO y se retirará del catálogo en 7 días.')) return;
   $('btnVendido').disabled=true; $('btnVendido').textContent='Marcando…';
   try{
     const { data, error }=await sb.rpc('editar_marcar_vendido',{p_tabla:TABLA,p_codigo:COD,p_token:TOK});
