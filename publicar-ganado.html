@@ -36,7 +36,7 @@
   /* HEADER */
   header{background:var(--paper);color:var(--tierra);padding:14px 0 12px;border-bottom:1px solid var(--linea)}
   .brandrow{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
-  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;flex:none;padding:5px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;flex:none;padding:1px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
   .stamp>img{width:100%;height:100%;object-fit:contain;display:block}
   .brandtext h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.16em;margin:0;font-size:20px;line-height:1;color:var(--pasto)}
   .brandtext .sub{font-size:11px;color:var(--oro);font-weight:700;letter-spacing:.14em;margin-top:3px}
@@ -107,7 +107,7 @@
   @media(max-width:479px){
     .brandtext h1{font-size:18px;letter-spacing:.12em}
     .brandtext .sub{font-size:10px;letter-spacing:.10em}
-    .stamp{width:40px;height:40px;padding:4px}
+    .stamp{width:40px;height:40px;padding:1px}
     .wrap{padding:16px 14px 50px}
     header{padding:12px 0 10px}
     header .wrap{padding:0 14px}
@@ -124,7 +124,7 @@
 
 <header><div class="wrap" style="padding-top:0;padding-bottom:0">
   <div class="brandrow">
-    <div class="stamp" aria-hidden="true"><img src="logo-terrava.png" alt="TERRAVA"></div>
+    <div class="stamp" aria-hidden="true" style="background:#0f2e21;border:2px solid #c28a30;border-radius:50%"><img src="logo-terrava.png" alt="TERRAVA"></div>
     <div class="brandtext">
       <h1>TERRAVA</h1>
       <div class="sub">PUBLICA TU GANADO — ES GRATIS</div>
@@ -228,7 +228,7 @@ $('departamento').innerHTML='<option value="">Elige…</option>'+DEPS.map(d=>`<o
 function catOpts(){
   const s=$('sexo').value, e=$('estado_repro').value;
   if(s==='Hembra') return (e==='Preñada'||e==='Con cría')?['Novilla','Vaca','Lote','Otro']:['Ternera','Novilla','Vaca','Lote','Otro'];
-  if(s==='Macho') return ['Ternero','Maute','Novillo','Toro','Lote','Otro'];
+  if(s==='Macho') return ['Ternero','Maute','Novillo','Torete','Toro','Lote','Otro'];
   return [];
 }
 function refreshCat(){

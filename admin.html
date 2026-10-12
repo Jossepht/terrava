@@ -27,7 +27,7 @@
   header{background:var(--paper);color:var(--tierra);padding:14px 0 12px;border-bottom:1px solid var(--linea)}
   .wrap{max-width:760px;margin:0 auto;padding:0 16px}
   .hrow{display:flex;align-items:center;gap:12px}
-  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;flex:none;padding:5px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;flex:none;padding:1px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
   .stamp>img{width:100%;height:100%;object-fit:contain;display:block}
   .htitle h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.14em;margin:0;font-size:20px;color:var(--pasto);line-height:1}
   .htitle p{margin:3px 0 0;font-size:10.5px;color:var(--oro);font-weight:700;letter-spacing:.14em}
@@ -85,12 +85,17 @@
 
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--pasto);color:#fff;padding:12px 22px;border-radius:99px;font-size:14px;font-weight:600;display:none;z-index:60;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 
+  /* Contador de clicks WhatsApp (admin) */
+  .wa-counter{display:inline-flex;align-items:center;gap:6px;background:#eafaf0;border:1px solid #b7e4c8;color:#0f6b36;font:600 12px 'Manrope';padding:5px 10px;border-radius:8px;margin-top:4px}
+  .wa-counter b{color:#0f2e21;font-weight:800}
+  .wa-counter .wa-ic{font-size:13px}
+
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
   @media(max-width:479px){
     .htitle h1{font-size:18px;letter-spacing:.10em}
     .htitle p{font-size:9.5px}
-    .stamp{width:40px;height:40px;padding:4px}
+    .stamp{width:40px;height:40px;padding:1px}
     .tab{padding:8px 4px}
     .tab .tab-label{font-size:10.5px}
     .tab .tab-count{font-size:10px}
@@ -106,7 +111,7 @@
 </div>
 
 <header><div class="wrap hrow">
-  <div class="stamp" aria-hidden="true"><img src="logo-terrava.png" alt="TERRAVA"></div>
+  <div class="stamp" aria-hidden="true" style="background:#0f2e21;border:2px solid #c28a30;border-radius:50%"><img src="logo-terrava.png" alt="TERRAVA"></div>
   <div class="htitle"><h1>TERRAVA</h1><p>ADMINISTRACIÓN</p></div>
   <button class="logout" id="logout" style="display:none">Cerrar sesión</button>
 </div></header>
@@ -143,7 +148,21 @@
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 const waNum=t=>{ t=String(t||'').replace(/\D/g,''); return t.length===10?'57'+t:t; };
-let AV=[], PR=[], cat='bovinos';
+let AV=[], PR=[], cat='bovinos', CLICKS={};
+// Mapa { codigo: cantidadDeClicksWhatsApp }
+
+async function cargarClicks(){
+  try {
+    const {data,error}=await sb.from('clicks_whatsapp').select('codigo');
+    if(error){ console.warn('No pude cargar clicks:', error.message); return; }
+    CLICKS={};
+    for(const r of (data||[])){ CLICKS[r.codigo]=(CLICKS[r.codigo]||0)+1; }
+  } catch(e){ console.warn('Error cargando clicks:', e); }
+}
+function clicksTxt(codigo){
+  const n = CLICKS[codigo]||0;
+  return `<div class="wa-counter"><span class="wa-ic">📲</span> <b>${n}</b> contacto${n===1?'':'s'} por WhatsApp</div>`;
+}
 
 function toast(t){ const el=$('toast'); el.textContent=t; el.style.display='block'; setTimeout(()=>el.style.display='none',2600); }
 function edadTxt(a){
@@ -173,9 +192,10 @@ $('logout').addEventListener('click', async ()=>{ await sb.auth.signOut(); mostr
 async function cargar(){
   $('summary').textContent='Cargando pendientes…'; $('list').innerHTML='';
   try{
-    const [a,p]=await Promise.all([
+    const [a,p,_]=await Promise.all([
       sb.from('avisos').select('*').order('fecha',{ascending:true}),
-      sb.from('propiedades').select('*').order('fecha',{ascending:true})
+      sb.from('propiedades').select('*').order('fecha',{ascending:true}),
+      cargarClicks()
     ]);
     if(a.error) throw a.error; if(p.error) throw p.error;
     AV=a.data||[]; PR=p.data||[];
@@ -221,6 +241,7 @@ function tarjetaVigencia(a,tabla,c){
         <span class="codigo">${a.codigo||''}</span>
         <div class="kind" style="font-size:14px;margin:6px 0 4px">${titulo} · ${a.municipio||''}, ${a.departamento||''}</div>
         <div class="rows"><div>${estadoTxt}</div><div class="tel">📱 ${a.telefono||''}</div></div>
+        ${clicksTxt(a.codigo)}
       </div>
     </div>
     <div class="actions">
@@ -289,6 +310,7 @@ function tarjetaGestion(a,tabla,c){
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="codigo">${a.codigo||''}</span>${estadoBadge(a.estado)}</div>
         <div class="kind" style="font-size:14px;margin:6px 0 4px">${titulo} · ${a.municipio||''}, ${a.departamento||''}</div>
         <div class="rows"><div class="tel">📱 ${a.telefono||''}</div><div class="cnt">Este número ha publicado ${n} vez(ces)</div></div>
+        ${clicksTxt(a.codigo)}
       </div>
     </div>
     <div class="actions">
@@ -331,6 +353,7 @@ function tarjeta(a,c){
     </div>
     <div class="actions">
       <button class="ap" onclick="aprobar('${tabla}',${a.id},'${a.telefono||''}','${a.codigo||''}','${a.edit_token||''}')">✅ Aprobar</button>
+      <a class="bl" href="editar.html?tabla=${tabla}&c=${encodeURIComponent(a.codigo||'')}&t=${a.edit_token||''}" target="_blank" rel="noopener">✏️ Editar</a>
       <button class="re" onclick="rechazar('${tabla}',${a.id},'${a.telefono||''}','${a.codigo||''}','${a.edit_token||''}')">❌ Rechazar</button>
       <button class="bl" onclick="bloquear('${a.telefono||''}')">🚫 Bloquear</button>
     </div>

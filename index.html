@@ -51,7 +51,7 @@
   /* ============ HEADER ============ */
   header{background:var(--paper);color:var(--tierra);padding-top:2px}
   .brandrow{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:14px 0 12px;position:relative}
-  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;flex:none;padding:5px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  .stamp{width:44px;height:44px;background:var(--pasto);border:2px solid var(--oro);border-radius:50%;display:grid;place-items:center;flex:none;padding:1px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
   .stamp>img{width:100%;height:100%;object-fit:contain;display:block}
   .brandtext h1{font-family:'Fraunces',serif;font-weight:700;letter-spacing:.16em;margin:0;font-size:20px;line-height:1;color:var(--pasto)}
   .brandtext .sub{font-size:9px;color:var(--oro);font-weight:700;letter-spacing:.15em;margin-top:3px}
@@ -83,6 +83,11 @@
 
   /* ============ FILTRO ============ */
   .filterbar{background:var(--paper);padding:9px 0 9px}
+  .filterextra{background:var(--paper);padding:0 0 9px;border-top:1px dashed var(--linea)}
+  .filterextra.hidden{display:none}
+  .filterextra .wrap{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding-top:8px}
+  .filterextra .depsel{flex:1;min-width:110px;max-width:220px;padding:7px 30px 7px 10px;font-size:12px}
+  .filterextra .depsel:disabled{opacity:.6;cursor:not-allowed}
   .filterbar .wrap{display:flex;align-items:center;gap:10px}
   .filterlbl{font-style:italic;font-family:'Fraunces',serif;font-weight:600;color:var(--muted-2);font-size:12.5px;flex:none}
   .depsel{flex:1;max-width:360px;background:#fff;color:var(--tierra);border:1px solid #d4c9b0;border-radius:10px;padding:9px 36px 9px 12px;font:500 12.5px 'Manrope';appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23c28a30' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
@@ -186,7 +191,7 @@
   @media(max-width:479px){
     .brandtext h1{font-size:16px;letter-spacing:.08em}
     .brandtext .sub{font-size:7.5px;letter-spacing:.03em;margin-top:2px}
-    .stamp{width:36px;height:36px;padding:3px;border-width:1.5px}
+    .stamp{width:36px;height:36px;padding:1px;border-width:1.5px}
     .brandrow{gap:7px;padding:10px 0 9px;flex-wrap:nowrap}
     .nav{gap:5px;margin-left:auto;flex:none}
     .navpub{padding:7px 10px;font-size:11px;gap:3px}
@@ -222,7 +227,7 @@
 <!-- =========== HEADER =========== -->
 <header><div class="wrap">
   <div class="brandrow">
-    <div class="stamp" aria-hidden="true"><img src="logo-terrava.png" alt="TERRAVA"></div>
+    <div class="stamp" aria-hidden="true" style="background:#0f2e21;border:2px solid #c28a30;border-radius:50%"><img src="logo-terrava.png" alt="TERRAVA"></div>
     <div class="brandtext">
       <h1>TERRAVA</h1>
       <div class="sub">MERCADO RURAL DE COLOMBIA</div>
@@ -249,6 +254,15 @@
   <div class="filterbar"><div class="wrap">
     <label class="filterlbl" for="depSelect">Región</label>
     <select id="depSelect" class="depsel"></select>
+  </div></div>
+  <div class="filterextra hidden" id="filtrosBovinos"><div class="wrap">
+    <select id="filTipoB" class="depsel"><option value="">Todos los tipos</option><option>Carne</option><option>Leche</option><option>Doble Propósito</option><option>Reproductor</option><option>Hembra pura</option></select>
+    <select id="filSexoB" class="depsel"><option value="">Ambos sexos</option><option>Hembra</option><option>Macho</option></select>
+    <select id="filCatB" class="depsel" disabled><option value="">Elige sexo primero</option></select>
+  </div></div>
+  <div class="filterextra hidden" id="filtrosPropiedades"><div class="wrap">
+    <select id="filTipoP" class="depsel"><option value="">Todos los tipos</option><option>Finca</option><option>Lote</option><option>Terreno</option></select>
+    <select id="filNegP" class="depsel"><option value="">Todos los negocios</option><option>Venta</option><option>Arriendo</option><option>Permuta</option></select>
   </div></div>
 </div>
 
@@ -301,7 +315,7 @@ const $=id=>document.getElementById(id);
 if(typeof WHATSAPP!=='undefined'){ $('contactoBtn').href=`https://wa.me/${WHATSAPP}?text=`+encodeURIComponent('Hola Terrava, tengo una consulta'); $('footWa').href=$('contactoBtn').href; }
 
 const DEPARTAMENTOS=['Amazonas','Antioquia','Arauca','Atlántico','Bolívar','Boyacá','Caldas','Caquetá','Casanare','Cauca','Cesar','Chocó','Córdoba','Cundinamarca','Guainía','Guaviare','Huila','La Guajira','Magdalena','Meta','Nariño','Norte de Santander','Putumayo','Quindío','Risaralda','San Andrés y Providencia','Santander','Sucre','Tolima','Valle del Cauca','Vaupés','Vichada'];
-const PLURAL={'Hembra':'Hembras','Macho':'Machos','Vacía':'Vacías','Preñada':'Preñadas','Con cría':'Con crías','No aplica':'No aplica','Ternera':'Terneras','Novilla':'Novillas','Vaca':'Vacas','Ternero':'Terneros','Maute':'Mautes','Novillo':'Novillos','Toro':'Toros','Lote':'Lote','Otro':'Otros'};
+const PLURAL={'Hembra':'Hembras','Macho':'Machos','Vacía':'Vacías','Preñada':'Preñadas','Con cría':'Con crías','No aplica':'No aplica','Ternera':'Terneras','Novilla':'Novillas','Vaca':'Vacas','Ternero':'Terneros','Maute':'Mautes','Novillo':'Novillos','Torete':'Toretes','Toro':'Toros','Lote':'Lote','Otro':'Otros'};
 // Formatea edad para catálogo: rango si unidad=Años con edad_rango lleno; número si Meses.
 function edadTxt(a){
   const u=(a.edad_unidad||'').toLowerCase();
@@ -356,7 +370,14 @@ function seededShuffle(arr, seed){
   return a;
 }
 
-const sb=(typeof SUPABASE_URL!=='undefined')?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+const sb=(typeof SUPABASE_URL!=='undefined' && typeof supabase!=='undefined')?supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+
+// ---- Tracking de clicks en WhatsApp (fire-and-forget) ----
+// Registra el click antes de abrir wa.me. Si falla el INSERT, el link se abre igual.
+function registrarClickWA(codigo, tabla){
+  if(!sb || !codigo) return;
+  try { sb.from('clicks_whatsapp').insert({codigo:codigo, tabla:tabla}).then(()=>{}, ()=>{}); } catch(e) {}
+}
 const grid=$('grid'), sel=$('depSelect'), countEl=$('count'), stateEl=$('state');
 let ITEMS=[], depActual='Todos', cat='inicio', pendingCodigo=null;
 const esBovino=a=>String(a.codigo||'').toUpperCase().startsWith('TRB');
@@ -374,7 +395,8 @@ function fotoBox(a,icon){
 }
 function botonContacto(a,msg){
   if(a.estado==='Vendido') return `<div class="wa vendido-btn">✅ Vendido en TERRAVA</div>`;
-  return `<a class="wa" href="https://wa.me/${waNum(a.telefono)}?text=${msg}" target="_blank" rel="noopener">Contactar por WhatsApp</a>`;
+  const tabla = esBovino(a) ? 'avisos' : 'propiedades';
+  return `<a class="wa" href="https://wa.me/${waNum(a.telefono)}?text=${msg}" target="_blank" rel="noopener" onclick="registrarClickWA('${a.codigo||''}','${tabla}')">Contactar por WhatsApp</a>`;
 }
 function cardBovino(a){
   const n=Number(a.cantidad)||1;
@@ -409,7 +431,8 @@ function cardPropiedad(a){
 const LOTE=12;
 let mostrados=0, listaFiltrada=[], io=null;
 function render(){
-  listaFiltrada=depActual==='Todos'?ITEMS:ITEMS.filter(a=>a.departamento===depActual);
+  let base = depActual==='Todos'?ITEMS:ITEMS.filter(a=>a.departamento===depActual);
+  listaFiltrada = aplicarFiltrosExtra(base);
   mostrados=0; grid.innerHTML='';
   const cual=cat==='propiedades'?'propiedad(es)':'aviso(s)';
   countEl.innerHTML=`<b>${listaFiltrada.length}</b> ${cual} disponible(s)`+(depActual!=='Todos'?` en ${depActual}`:'');
@@ -443,9 +466,57 @@ function initInfiniteScroll(){
 }
 sel.addEventListener('change',()=>{ depActual=sel.value; render(); });
 
+// ---- Filtros adicionales (Bovinos y Propiedades) ----
+let filBov={tipo:'',sexo:'',categoria:''}, filProp={tipo:'',negocio:''};
+const CAT_H=['Ternera','Novilla','Vaca','Lote','Otro'];
+const CAT_M=['Ternero','Maute','Novillo','Torete','Toro','Lote','Otro'];
+function refreshCatOptions(){
+  const s=$('filSexoB').value;
+  const sel=$('filCatB');
+  if(!s){ sel.innerHTML='<option value="">Elige sexo primero</option>'; sel.disabled=true; filBov.categoria=''; return; }
+  const cats = s==='Hembra' ? CAT_H : CAT_M;
+  const prev = filBov.categoria;
+  sel.innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option${c===prev?' selected':''}>${c}</option>`).join('');
+  sel.disabled=false;
+  if(!cats.includes(prev)) filBov.categoria='';
+}
+$('filTipoB').addEventListener('change',()=>{ filBov.tipo=$('filTipoB').value; render(); });
+$('filSexoB').addEventListener('change',()=>{ filBov.sexo=$('filSexoB').value; refreshCatOptions(); render(); });
+$('filCatB').addEventListener('change',()=>{ filBov.categoria=$('filCatB').value; render(); });
+$('filTipoP').addEventListener('change',()=>{ filProp.tipo=$('filTipoP').value; render(); });
+$('filNegP').addEventListener('change',()=>{ filProp.negocio=$('filNegP').value; render(); });
+
+function toggleFiltrosExtra(){
+  $('filtrosBovinos').classList.toggle('hidden', cat!=='bovinos');
+  $('filtrosPropiedades').classList.toggle('hidden', cat!=='propiedades');
+}
+function aplicarFiltrosExtra(items){
+  if(cat==='bovinos'){
+    return items.filter(a=>{
+      if(filBov.tipo && a.tipo!==filBov.tipo) return false;
+      if(filBov.sexo && a.sexo!==filBov.sexo) return false;
+      if(filBov.categoria && a.categoria!==filBov.categoria) return false;
+      return true;
+    });
+  }
+  if(cat==='propiedades'){
+    return items.filter(a=>{
+      if(filProp.tipo && a.tipo!==filProp.tipo) return false;
+      if(filProp.negocio && a.negocio!==filProp.negocio) return false;
+      return true;
+    });
+  }
+  return items;
+}
+
 function setTab(nuevo){
   cat=nuevo; document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.cat===cat));
   depActual='Todos'; sel.value='Todos';
+  // Resetear filtros extras al cambiar de pestaña
+  filBov={tipo:'',sexo:'',categoria:''}; filProp={tipo:'',negocio:''};
+  $('filTipoB').value=''; $('filSexoB').value=''; refreshCatOptions();
+  $('filTipoP').value=''; $('filNegP').value='';
+  toggleFiltrosExtra();
   // Footer ahora es informativo (◆ Sobre TERRAVA ◆) — no cambia por pestaña; el CTA lo cubren el FAB y el botón del header
 }
 document.querySelector('.tabs').addEventListener('click',e=>{ const t=e.target.closest('.tab'); if(!t)return; setTab(t.dataset.cat); cargar(); });
@@ -494,7 +565,7 @@ function openModal(a){
     <div class="mbtns">
       ${a.estado==='Vendido'
         ? `<div class="wa vendido-btn" style="flex:1">✅ Este aviso ya fue vendido</div>`
-        : `<a class="wa" href="https://wa.me/${waNum(a.telefono)}?text=${msg}" target="_blank" rel="noopener">Contactar por WhatsApp</a>`}
+        : `<a class="wa" href="https://wa.me/${waNum(a.telefono)}?text=${msg}" target="_blank" rel="noopener" onclick="registrarClickWA('${a.codigo||''}','${bov?'avisos':'propiedades'}')">Contactar por WhatsApp</a>`}
       <a class="share" href="https://wa.me/?text=${shareTxt}" target="_blank" rel="noopener">📤 Compartir</a>
     </div>
     <button class="mclosebottom" onclick="closeModal()">← Volver al catálogo</button>`;
