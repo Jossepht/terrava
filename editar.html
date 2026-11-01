@@ -190,6 +190,13 @@ const DEPS=['Amazonas','Antioquia','Arauca','Atlántico','Bolívar','Boyacá','C
 let DATA=null, fotosExist=[], videosExist=[], fotosNew=[], videosNew=[];
 
 const num=v=>String(v||'').replace(/\D/g,'');
+// Convierte texto a número decimal (acepta punto o coma). Devuelve null si vacío/invalido.
+function numDecimal(v){
+  const s = String(v||'').replace(',', '.').trim();
+  if(!s) return null;
+  const n = parseFloat(s);
+  return (isNaN(n) || n<=0) ? null : n;
+}
 const fmtMiles=v=>{ const n=String(v).replace(/\D/g,''); return n?Number(n).toLocaleString('es-CO'):''; };
 const titleCase=s=>s.trim().toLowerCase().replace(/(^|\s)\p{L}/gu,m=>m.toUpperCase());
 const capFirst=s=>{ s=(s||'').trim(); return s?s.charAt(0).toUpperCase()+s.slice(1):s; };
@@ -306,13 +313,17 @@ function fieldsPropiedad(){
   const d=DATA;
   const tiposBase=['Finca','Lote','Terreno'];
   const esOtro=d.tipo && !tiposBase.includes(d.tipo);
+  // Valor del área en el input: si es entero, sin decimal; si tiene decimal, con punto
+  const areaVal = d.area!=null && d.area!==''
+    ? (Number(d.area) % 1 === 0 ? String(parseInt(d.area)) : String(Number(d.area)))
+    : '';
   $('fields').innerHTML=`
     <div class="field"><label>Tipo de propiedad <span class="req">•</span></label>
       <select id="tipo">${opt(['Finca','Lote','Terreno','Otro'],esOtro?'Otro':d.tipo)}</select></div>
     <div class="field ${esOtro?'':'hidden'}" id="tipoOtroField"><label>¿Cuál tipo? <span class="req">•</span></label>
       <input id="tipo_otro" value="${esOtro?d.tipo:''}"></div>
     <div class="row">
-      <div class="field"><label>Área <span class="req">•</span></label><input id="area" inputmode="numeric" value="${d.area||''}"></div>
+      <div class="field"><label>Área <span class="req">•</span></label><input id="area" inputmode="decimal" placeholder="Ej: 13.5" value="${areaVal}"></div>
       <div class="field"><label>Unidad <span class="req">•</span></label><select id="area_unidad">${opt(['Hectárea','Fanegada','Cuadra','m²'],d.area_unidad)}</select></div>
     </div>
     <div class="field"><label>Departamento <span class="req">•</span></label><select id="departamento">${depSel(d.departamento)}</select></div>
@@ -339,7 +350,13 @@ function fieldsPropiedad(){
   $('precio_modo').addEventListener('change',updTextos);
   $('negocio').addEventListener('change',updTextos);
   $('tipo').addEventListener('change',()=>$('tipoOtroField').classList.toggle('hidden',$('tipo').value!=='Otro'));
-  $('area').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,''));
+  // Área: acepta decimal (punto o coma, un solo decimal). Mismo patrón que edad en bovinos.
+  $('area').addEventListener('input', e=>{
+    let v = String(e.target.value||'').replace(',', '.').replace(/[^0-9.]/g, '');
+    const partes = v.split('.');
+    if(partes.length>2) v = partes[0] + '.' + partes.slice(1).join('');
+    e.target.value = v;
+  });
   $('precio').addEventListener('input',e=>e.target.value=fmtMiles(e.target.value));
   refreshModo();
 }
@@ -393,7 +410,7 @@ $('enviar').addEventListener('click', async ()=>{
       estado_repro:$('sexo').value==='Hembra'?$('estado_repro').value:'No aplica',
       categoria:catFinal, raza:capFirst($('raza').value),
       peso_kg:num($('peso_kg').value), edad:edadNum, edad_rango:edadRango, edad_unidad:uEdad,
-      cantidad:num($('cantidad').value), cantidad_reservada:$('cantidad_reservada').checked,
+      cantidad:num($('cantidad').value), cantidad_reservada: !!$('cantidad_reservada').checked,
       departamento:$('departamento').value, municipio:titleCase($('municipio').value),
       precio_modo:$('precio_modo').value, precio:num($('precio').value),
       observaciones:$('observaciones').value.trim()||'Ninguna', telefono:num($('telefono').value) };
@@ -405,11 +422,14 @@ $('enviar').addEventListener('click', async ()=>{
   }else{
     const tipoFinal = $('tipo').value==='Otro' ? capFirst($('tipo_otro').value) : $('tipo').value;
     const modoFinal = $('precio_modo').value;
-    p={ tipo:tipoFinal, area:num($('area').value), area_unidad:$('area_unidad').value,
+    const areaFinal = numDecimal($('area').value);
+    p={ tipo:tipoFinal, area:areaFinal, area_unidad:$('area_unidad').value,
       departamento:$('departamento').value, municipio:titleCase($('municipio').value), vereda:titleCase($('vereda').value),
       negocio:$('negocio').value, precio_modo:modoFinal, precio:num($('precio').value),
       observaciones:$('observaciones').value.trim()||'Ninguna', telefono:num($('telefono').value) };
-    if(!p.tipo)falta.push('tipo'); if(!p.area)falta.push('área'); if(!p.departamento)falta.push('departamento');
+    if(!p.tipo)falta.push('tipo');
+    if(!p.area || p.area<0.1) falta.push('área (mínimo 0.1)');
+    if(!p.departamento)falta.push('departamento');
     if(!p.municipio)falta.push('municipio'); if(!p.precio)falta.push('precio');
   }
   if(!p.telefono)falta.push('WhatsApp');
@@ -434,6 +454,20 @@ $('enviar').addEventListener('click', async ()=>{
     const { data, error }=await sb.rpc('editar_guardar',{p_tabla:TABLA,p_codigo:COD,p_token:TOK,p_data:p});
     if(error) throw error;
     if(!data || !String(data).startsWith('OK')) throw new Error('No se pudo guardar (enlace inválido).');
+
+    // --- Fix Opción A: UPDATE directo de campos que la función RPC puede no estar actualizando ---
+    // Garantiza que cantidad_reservada (bovinos) y area (propiedades con decimales) se guarden tal cual.
+    try{
+      if(TABLA==='avisos'){
+        await sb.from('avisos').update({ cantidad_reservada: p.cantidad_reservada }).eq('codigo', COD);
+      } else if(TABLA==='propiedades'){
+        await sb.from('propiedades').update({ area: p.area }).eq('codigo', COD);
+      }
+    }catch(fixErr){
+      console.warn('Fix post-RPC no aplicó:', fixErr);
+      // No bloqueamos el flujo — el RPC principal ya guardó el resto.
+    }
+
     const partes=String(data).split(':');
     if(partes.length>1 && partes[1]){
       const nuevoLink='https://terrava.com.co/editar.html?tabla='+encodeURIComponent(TABLA)+'&c='+encodeURIComponent(COD)+'&t='+encodeURIComponent(partes[1]);

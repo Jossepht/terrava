@@ -329,7 +329,19 @@ function edadTxt(a){
 }
 const plz=(w,n)=>(n>1&&PLURAL[w])?PLURAL[w]:w;
 const UAREA={'Hectárea':'Hectáreas','Fanegada':'Fanegadas','Cuadra':'Cuadras','m²':'m²'};
-const areaTxt=a=>`${a.area||''} ${(Number(a.area)>1&&UAREA[a.area_unidad])?UAREA[a.area_unidad]:(a.area_unidad||'')}`.trim();
+// Formatea el valor de área: entero → sin decimal; decimal → con punto. "20" ó "13.5"
+function fmtAreaValor(v){
+  if(v==null || v==='') return '';
+  const n = Number(v);
+  if(isNaN(n)) return String(v);
+  return (n % 1 === 0) ? String(parseInt(n)) : String(n);
+}
+const areaTxt=a=>{
+  const v = fmtAreaValor(a.area);
+  if(!v) return '';
+  const unidad = (Number(a.area)>1 && UAREA[a.area_unidad]) ? UAREA[a.area_unidad] : (a.area_unidad||'');
+  return `${v} ${unidad}`.trim();
+};
 
 function precioTxt(a){
   const p='$'+(Number(a.precio)||0).toLocaleString('es-CO');
@@ -339,6 +351,15 @@ function precioTxt(a){
   if(m==='Total') return `${p}<span class="pu"> en total</span>`;
   if(m.startsWith('Por ')){ const u=m.slice(4).toLowerCase();
     return ['animal','lote'].includes(u) ? `${p}<span class="pu"> por ${u}</span>` : `${p}${zwsp}<span class="pu">/${u}</span>`; }
+  return p;
+}
+// Versión texto plano de precio (para WhatsApp — sin HTML)
+function precioPlano(a){
+  const p='$'+(Number(a.precio)||0).toLocaleString('es-CO');
+  const m=a.precio_modo||'';
+  if(m==='Por kilo') return `${p}/kg`;
+  if(m==='Total') return `${p} en total`;
+  if(m.startsWith('Por ')) return `${p} ${m.toLowerCase()}`;
   return p;
 }
 const fotosDe=a=>a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
@@ -353,6 +374,38 @@ function haceCuanto(fecha){
   const h=s/3600; if(h<24) return 'hace '+Math.floor(h)+' h';
   const d=h/24; if(d<30) { const n=Math.floor(d); return 'hace '+n+' día'+(n>1?'s':''); }
   const m=Math.floor(d/30); return 'hace '+m+' mes'+(m>1?'es':'');
+}
+
+// ---- Mensajes WhatsApp mejorados (específicos del aviso) ----
+// Arman el texto con fallbacks: si falta un dato, se omite esa parte y el resto se mantiene limpio.
+function msgBovino(a){
+  const codigo = a.codigo || '';
+  const tipoLabel = (a.tipo==='Reproductor' || a.tipo==='Hembra pura')
+    ? a.tipo
+    : (a.categoria ? a.categoria : (a.tipo ? 'Ganado '+a.tipo : 'ganado'));
+  const ubic = [a.municipio, a.departamento].filter(Boolean).join(', ');
+  const precio = (a.precio) ? precioPlano(a) : '';
+  // Armado del mensaje
+  let txt = `Hola, vi en TERRAVA tu aviso ${codigo}`;
+  if(tipoLabel) txt += ` de ${tipoLabel}`;
+  if(ubic) txt += ` en ${ubic}`;
+  if(precio) txt += ` por ${precio}`;
+  txt += `. Me interesa, ¿sigue disponible?`;
+  return encodeURIComponent(txt);
+}
+function msgPropiedad(a){
+  const codigo = a.codigo || '';
+  const tipoLabel = a.tipo || 'propiedad';
+  const area = (a.area) ? areaTxt(a) : '';
+  const ubic = [a.municipio, a.vereda, a.departamento].filter(Boolean).join(', ');
+  const precio = (a.precio) ? precioPlano(a) : '';
+  let txt = `Hola, vi en TERRAVA tu aviso ${codigo}`;
+  txt += ` — ${tipoLabel}`;
+  if(area) txt += ` de ${area}`;
+  if(ubic) txt += ` en ${ubic}`;
+  if(precio) txt += ` por ${precio}`;
+  txt += `. Me interesa, ¿sigue disponible?`;
+  return encodeURIComponent(txt);
 }
 
 // ---- Rotación diaria en pestaña Inicio ----
@@ -405,7 +458,7 @@ function botonContacto(a,msg){
 function cardBovino(a){
   const n=Number(a.cantidad)||1;
   const repro=(a.sexo==='Hembra'&&a.estado_repro&&a.estado_repro!=='No aplica')?` (${plz(a.estado_repro,n)})`:'';
-  const msg=encodeURIComponent(`Hola, buen día. Vi tu aviso ${a.codigo} en TERRAVA (Mercado rural de Colombia) y estoy interesado(a) en el ganado. ¿Podríamos hablar para conocer más detalles?`);
+  const msg=msgBovino(a);
   return `<article class="card ${a.estado==='Vendido'?'vendido':''}" data-codigo="${a.codigo}">
     ${fotoBox(a,'🐄')}</div>
     <div class="cbody">
@@ -419,7 +472,7 @@ function cardBovino(a){
     </div></article>`;
 }
 function cardPropiedad(a){
-  const msg=encodeURIComponent(`Hola, buen día. Vi tu aviso ${a.codigo} en TERRAVA (Mercado rural de Colombia) y estoy interesado(a) en la propiedad. ¿Podríamos hablar para conocer más detalles?`);
+  const msg=msgPropiedad(a);
   return `<article class="card ${a.estado==='Vendido'?'vendido':''}" data-codigo="${a.codigo}">
     ${fotoBox(a,'🏡')}</div>
     <div class="cbody">
@@ -571,8 +624,7 @@ function openModal(a){
   mFotos=fotosDe(a); mIdx=0; showImg();
   const vids=videosDe(a);
   const bov=esBovino(a);
-  const cual=bov?'el ganado':'la propiedad';
-  const msg=encodeURIComponent(`Hola, buen día. Vi tu aviso ${a.codigo} en TERRAVA (Mercado rural de Colombia) y estoy interesado(a) en ${cual}. ¿Podríamos hablar para conocer más detalles?`);
+  const msg = bov ? msgBovino(a) : msgPropiedad(a);
   const shareUrl='https://terrava.com.co/#'+a.codigo;
   const shareTxt=encodeURIComponent(`Mira este aviso en Terrava 🐄🏡\n${a.codigo}\n${shareUrl}`);
   let cabeza, filas;

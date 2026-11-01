@@ -50,9 +50,9 @@
   .summary{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:14.5px}
   .summary b{color:var(--pasto);font-weight:700}
 
-  .tabs{display:flex;gap:6px;margin-bottom:16px;padding-bottom:2px}
-  .tab{flex:1;min-width:0;background:#fff;border:1px solid var(--linea);color:var(--pasto);font-family:'Manrope';padding:8px 6px;border-radius:22px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.15;text-align:center}
-  .tab .tab-label{font-size:12px;font-weight:600;white-space:nowrap}
+  .tabs{display:flex;gap:5px;margin-bottom:16px;padding-bottom:2px;flex-wrap:wrap}
+  .tab{flex:1 1 90px;min-width:0;background:#fff;border:1px solid var(--linea);color:var(--pasto);font-family:'Manrope';padding:8px 6px;border-radius:22px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.15;text-align:center}
+  .tab .tab-label{font-size:11.5px;font-weight:600;white-space:nowrap}
   .tab .tab-count{font-size:10.5px;font-weight:700;opacity:.75}
   .tab.active{background:var(--oro);border-color:var(--oro);color:#241a08}
   .tab.active .tab-count{opacity:1}
@@ -90,16 +90,39 @@
   .wa-counter b{color:#0f2e21;font-weight:800}
   .wa-counter .wa-ic{font-size:13px}
 
+  /* Pestaña Contactos — barra de filtros */
+  .contactosBar{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px}
+  .contactosBar .filas{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .contactosBar label{font-size:11.5px;font-weight:700;color:var(--pasto);margin-bottom:3px;letter-spacing:.03em}
+  .contactosBar select{padding:8px 30px 8px 10px;border:1px solid var(--linea);border-radius:8px;font:500 12.5px 'Manrope';background:#fff;color:var(--tierra);appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c28a30' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer;min-width:120px}
+  .contactosResumen{background:var(--oro-soft);border:1px solid var(--oro);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--pasto);font-weight:600;text-align:center;margin-bottom:14px}
+  .contactosResumen b{font-size:16px;color:var(--oro);font-weight:800}
+
+  .contactoItem{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+  .contactoItem .foto{width:56px;height:56px;border-radius:8px;background:var(--paper-2);display:grid;place-items:center;flex:none;overflow:hidden;font-size:24px;color:var(--muted)}
+  .contactoItem .foto img{width:100%;height:100%;object-fit:cover}
+  .contactoItem .info{flex:1;min-width:0}
+  .contactoItem .cab{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+  .contactoItem .tit{font-family:'Fraunces',serif;font-weight:700;font-size:13.5px;color:var(--pasto);line-height:1.25;margin:4px 0 2px}
+  .contactoItem .ubi{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .contactoItem .cont-big{display:inline-flex;align-items:center;gap:5px;background:var(--pasto);color:#fff;padding:4px 10px;border-radius:99px;font:800 13px 'Manrope';margin-right:6px}
+  .contactoItem .cont-chico{font-size:11px;color:var(--muted);font-weight:600}
+  .contactoItem .acc{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .contactoItem .acc a,.contactoItem .acc button{font:600 11.5px 'Manrope';padding:6px 10px;border-radius:99px;text-decoration:none;border:1px solid var(--linea);background:#fff;color:var(--pasto);cursor:pointer;transition:.15s}
+  .contactoItem .acc a:hover,.contactoItem .acc button:hover{background:var(--paper-2)}
+
   @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
   @media(max-width:479px){
     .htitle h1{font-size:18px;letter-spacing:.10em}
     .htitle p{font-size:9.5px}
     .stamp{width:40px;height:40px;padding:1px}
-    .tab{padding:8px 4px}
-    .tab .tab-label{font-size:10.5px}
-    .tab .tab-count{font-size:10px}
+    .tab{padding:7px 3px;flex:1 1 70px}
+    .tab .tab-label{font-size:10px}
+    .tab .tab-count{font-size:9.5px}
     header{padding:12px 0 10px}
+    .contactosBar .filas{gap:6px}
+    .contactosBar select{font-size:11.5px;min-width:0;flex:1 1 auto}
   }
 </style>
 </head>
@@ -134,6 +157,7 @@
       <button class="tab active" data-cat="bovinos" id="tabB"><span class="tab-label">🐄 Bovinos</span><span class="tab-count">(0)</span></button>
       <button class="tab" data-cat="propiedades" id="tabP"><span class="tab-label">🏡 Propiedades</span><span class="tab-count">(0)</span></button>
       <button class="tab" data-cat="vigencia" id="tabV"><span class="tab-label">⏰ Por vencer</span><span class="tab-count">(0)</span></button>
+      <button class="tab" data-cat="contactos" id="tabC"><span class="tab-label">📲 Contactos</span></button>
       <button class="tab" data-cat="buscar" id="tabS"><span class="tab-label">🔎 Buscar</span></button>
     </div>
     <div id="list"></div>
@@ -148,19 +172,46 @@
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 const waNum=t=>{ t=String(t||'').replace(/\D/g,''); return t.length===10?'57'+t:t; };
-let AV=[], PR=[], cat='bovinos', CLICKS={};
-// Mapa { codigo: cantidadDeClicksWhatsApp }
+let AV=[], PR=[], cat='bovinos';
+// CLICKS: { codigo: [ts1, ts2, ts3, ...] }  — guardamos timestamps para filtrar por rango
+let CLICKS={};
 
 async function cargarClicks(){
   try {
-    const {data,error}=await sb.from('clicks_whatsapp').select('codigo');
+    const {data,error}=await sb.from('clicks_whatsapp').select('codigo, ts');
     if(error){ console.warn('No pude cargar clicks:', error.message); return; }
     CLICKS={};
-    for(const r of (data||[])){ CLICKS[r.codigo]=(CLICKS[r.codigo]||0)+1; }
+    for(const r of (data||[])){
+      if(!CLICKS[r.codigo]) CLICKS[r.codigo]=[];
+      CLICKS[r.codigo].push(r.ts);
+    }
   } catch(e){ console.warn('Error cargando clicks:', e); }
 }
+// Rango: 'hoy' | 'semana' | 'mes' | 'total'
+function inicioRango(rango){
+  const ahora = Date.now();
+  if(rango==='hoy'){
+    // 00:00 hora Colombia de hoy. Colombia = UTC-5 sin DST → 05:00 UTC.
+    const partes=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).split('-');
+    return Date.UTC(+partes[0], +partes[1]-1, +partes[2], 5, 0, 0);
+  }
+  if(rango==='semana') return ahora - 7*86400000;
+  if(rango==='mes') return ahora - 30*86400000;
+  return 0; // total
+}
+function contarClicksRango(codigo, rango){
+  const arr = CLICKS[codigo] || [];
+  if(rango==='total') return arr.length;
+  const desde = inicioRango(rango);
+  let n = 0;
+  for(const ts of arr){
+    if(new Date(ts).getTime() >= desde) n++;
+  }
+  return n;
+}
 function clicksTxt(codigo){
-  const n = CLICKS[codigo]||0;
+  // Mantiene el chip verde que ya existía en otras pestañas (muestra total histórico)
+  const n = contarClicksRango(codigo, 'total');
   return `<div class="wa-counter"><span class="wa-ic">📲</span> <b>${n}</b> contacto${n===1?'':'s'} por WhatsApp</div>`;
 }
 
@@ -218,6 +269,7 @@ function vigenciaLista(){
 function render(){
   if(cat==='vigencia'){ renderVigencia(); return; }
   if(cat==='buscar'){ renderBuscar(); return; }
+  if(cat==='contactos'){ renderContactos(); return; }
   const items=(cat==='bovinos'?AV:PR).filter(x=>x.estado==='Pendiente');
   if(!items.length){ $('list').innerHTML='<div class="empty">No hay '+(cat==='bovinos'?'avisos':'propiedades')+' pendientes. 🎉</div>'; return; }
   $('list').innerHTML=items.map(a=>tarjeta(a,cat)).join('');
@@ -323,6 +375,137 @@ function tarjetaGestion(a,tabla,c){
     </div>
   </div>`;
 }
+
+// ======= PESTAÑA CONTACTOS =======
+let ctcFiltros = { rango:'semana', orden:'desc', tipo:'todos', depto:'todos' };
+
+function renderContactos(){
+  // Universo: solo avisos aprobados (los únicos que pueden recibir clicks hoy)
+  const universo = [
+    ...AV.filter(x=>x.estado==='Aprobado').map(a=>({a, tabla:'avisos', c:'bovinos'})),
+    ...PR.filter(x=>x.estado==='Aprobado').map(a=>({a, tabla:'propiedades', c:'propiedades'}))
+  ];
+  // Departamentos únicos del universo (para el filtro)
+  const deps = [...new Set(universo.map(x=>x.a.departamento).filter(Boolean))].sort();
+
+  const barra = `
+    <div class="contactosBar">
+      <div class="filas">
+        <div><label>Rango</label>
+          <select id="ctcRango">
+            <option value="hoy"${ctcFiltros.rango==='hoy'?' selected':''}>Hoy</option>
+            <option value="semana"${ctcFiltros.rango==='semana'?' selected':''}>Semana</option>
+            <option value="mes"${ctcFiltros.rango==='mes'?' selected':''}>Mes</option>
+            <option value="total"${ctcFiltros.rango==='total'?' selected':''}>Total</option>
+          </select>
+        </div>
+        <div><label>Orden</label>
+          <select id="ctcOrden">
+            <option value="desc"${ctcFiltros.orden==='desc'?' selected':''}>Mayor a menor</option>
+            <option value="asc"${ctcFiltros.orden==='asc'?' selected':''}>Menor a mayor</option>
+          </select>
+        </div>
+        <div><label>Tipo</label>
+          <select id="ctcTipo">
+            <option value="todos"${ctcFiltros.tipo==='todos'?' selected':''}>Todos</option>
+            <option value="bovinos"${ctcFiltros.tipo==='bovinos'?' selected':''}>Bovinos</option>
+            <option value="propiedades"${ctcFiltros.tipo==='propiedades'?' selected':''}>Propiedades</option>
+          </select>
+        </div>
+        <div><label>Departamento</label>
+          <select id="ctcDepto">
+            <option value="todos"${ctcFiltros.depto==='todos'?' selected':''}>Todos</option>
+            ${deps.map(d=>`<option value="${d}"${ctcFiltros.depto===d?' selected':''}>${d}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="ctcResumen" class="contactosResumen"></div>
+    <div id="ctcLista"></div>`;
+  $('list').innerHTML = barra;
+
+  // Wire filtros
+  $('ctcRango').onchange = e=>{ ctcFiltros.rango=e.target.value; pintarContactos(universo); };
+  $('ctcOrden').onchange = e=>{ ctcFiltros.orden=e.target.value; pintarContactos(universo); };
+  $('ctcTipo').onchange = e=>{ ctcFiltros.tipo=e.target.value; pintarContactos(universo); };
+  $('ctcDepto').onchange = e=>{ ctcFiltros.depto=e.target.value; pintarContactos(universo); };
+
+  pintarContactos(universo);
+}
+
+function pintarContactos(universo){
+  // Filtrado
+  let lista = universo.filter(x=>{
+    if(ctcFiltros.tipo!=='todos' && x.c!==ctcFiltros.tipo) return false;
+    if(ctcFiltros.depto!=='todos' && x.a.departamento!==ctcFiltros.depto) return false;
+    return true;
+  });
+  // Enriquecer con contadores
+  const enriquecido = lista.map(x=>{
+    const codigo = x.a.codigo||'';
+    return {
+      ...x,
+      nHoy: contarClicksRango(codigo, 'hoy'),
+      nSem: contarClicksRango(codigo, 'semana'),
+      nMes: contarClicksRango(codigo, 'mes'),
+      nTot: contarClicksRango(codigo, 'total')
+    };
+  });
+  // Orden por el rango seleccionado
+  const key = ctcFiltros.rango==='hoy'?'nHoy':ctcFiltros.rango==='semana'?'nSem':ctcFiltros.rango==='mes'?'nMes':'nTot';
+  enriquecido.sort((a,b)=> ctcFiltros.orden==='desc' ? b[key]-a[key] : a[key]-b[key]);
+
+  // Resumen agregado
+  const totalRango = enriquecido.reduce((s,x)=>s+x[key],0);
+  const rangoLbl = ctcFiltros.rango==='hoy'?'hoy':ctcFiltros.rango==='semana'?'esta semana':ctcFiltros.rango==='mes'?'este mes':'en total histórico';
+  $('ctcResumen').innerHTML = `Total de contactos ${rangoLbl}: <b>${totalRango}</b> · ${enriquecido.length} aviso(s) en vista`;
+
+  // Lista
+  if(!enriquecido.length){
+    $('ctcLista').innerHTML = '<div class="empty">No hay avisos que coincidan con el filtro.</div>';
+    return;
+  }
+  $('ctcLista').innerHTML = enriquecido.map(x=>itemContacto(x,key)).join('');
+}
+
+function itemContacto(x, keyRango){
+  const a = x.a;
+  const fotos = a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const foto = fotos[0]
+    ? `<img src="${fotos[0]}" alt="">`
+    : (x.c==='bovinos' ? '🐄' : '🏡');
+  const titulo = x.c==='bovinos'
+    ? ((a.tipo==='Reproductor'||a.tipo==='Hembra pura')?a.tipo:`Ganado ${a.tipo||''}`)
+    : `${a.negocio||'Venta'} · ${a.tipo||'Propiedad'}`;
+  const ubi = `${a.municipio||''}${a.vereda?', '+a.vereda:''}${a.departamento?', '+a.departamento:''}`;
+  const nBig = x[keyRango];
+  const rangoCorto = keyRango==='nHoy'?'hoy':keyRango==='nSem'?'semana':keyRango==='nMes'?'mes':'total';
+  // Contadores secundarios (los otros rangos)
+  const otros = [];
+  if(keyRango!=='nHoy') otros.push(`Hoy: ${x.nHoy}`);
+  if(keyRango!=='nSem') otros.push(`Semana: ${x.nSem}`);
+  if(keyRango!=='nMes') otros.push(`Mes: ${x.nMes}`);
+  if(keyRango!=='nTot') otros.push(`Total: ${x.nTot}`);
+  return `<div class="contactoItem">
+    <div class="foto">${foto}</div>
+    <div class="info">
+      <div class="cab"><span class="codigo">${a.codigo||''}</span></div>
+      <div class="tit">${titulo}</div>
+      <div class="ubi">📍 ${ubi}</div>
+      <div>
+        <span class="cont-big">📲 ${nBig} ${rangoCorto}</span>
+        <span class="cont-chico">${otros.join(' · ')}</span>
+      </div>
+      <div class="acc">
+        <a href="https://terrava.com.co/#${encodeURIComponent(a.codigo||'')}" target="_blank" rel="noopener">👁️ Ver en catálogo</a>
+        <a href="editar.html?tabla=${x.tabla}&c=${encodeURIComponent(a.codigo||'')}&t=${a.edit_token||''}" target="_blank" rel="noopener">✏️ Editar</a>
+        <button onclick="marcarVendido('${x.tabla}',${a.id})">🏷️ Vendido</button>
+      </div>
+    </div>
+  </div>`;
+}
+// ======= FIN PESTAÑA CONTACTOS =======
+
 function tarjeta(a,c){
   const fotos=a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
   const videos=a.videos?a.videos.split(',').map(s=>s.trim()).filter(Boolean):[];
@@ -335,7 +518,11 @@ function tarjeta(a,c){
     filas=`<div>📍 ${a.municipio||''}, ${a.departamento||''}</div><div>⚖️ ${a.peso_kg||''} kg · ${edadTxt(a)} · ${a.cantidad||''} ${Number(a.cantidad)===1?'animal':'animales'}${a.cantidad_reservada?' <span style="color:#8a5a13;font-style:italic;font-size:12px">(reservada al público)</span>':''}</div>`;
     precio=`${fmt(a.precio)} · ${a.precio_modo||''}`;
   }else{
-    cabeza=`<div class="kind">${a.negocio||'Venta'} · ${a.tipo||'Propiedad'}</div><div class="desc">${a.area||''} ${a.area_unidad||''}</div>`;
+    // Formateo de área: entero sin decimal, decimal con punto
+    const areaVal = a.area!=null && a.area!==''
+      ? (Number(a.area) % 1 === 0 ? String(parseInt(a.area)) : String(Number(a.area)))
+      : '';
+    cabeza=`<div class="kind">${a.negocio||'Venta'} · ${a.tipo||'Propiedad'}</div><div class="desc">${areaVal} ${a.area_unidad||''}</div>`;
     filas=`<div>📍 ${a.municipio||''}${a.vereda?', '+a.vereda:''}, ${a.departamento||''}</div>`;
     precio=`${fmt(a.precio)} · ${a.precio_modo||''}`;
   }

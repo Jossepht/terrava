@@ -147,7 +147,7 @@
       <select id="tipo"><option value="">Elige…</option><option>Finca</option><option>Lote</option><option>Terreno</option><option>Otro</option></select></div>
     <div class="field hidden" id="tipoOtroField"><label>¿Cuál tipo? <span class="req">•</span></label><input id="tipo_otro" placeholder="Escribe el tipo de propiedad"></div>
     <div class="row">
-      <div class="field"><label>Área <span class="req">•</span></label><input id="area" inputmode="numeric" placeholder="120"></div>
+      <div class="field"><label>Área <span class="req">•</span></label><input id="area" inputmode="decimal" placeholder="Ej: 13.5"></div>
       <div class="field"><label>Unidad <span class="req">•</span></label>
         <select id="area_unidad"><option>Hectárea</option><option>Fanegada</option><option>Cuadra</option><option>m²</option></select></div>
     </div>
@@ -272,7 +272,17 @@ $('precio_modo').addEventListener('change',updatePrecioTextos);
 $('negocio').addEventListener('change',updatePrecioTextos);
 refreshPrecioModo();
 
-['area','telefono'].forEach(id=>{ $(id).addEventListener('input',e=>{ e.target.value=e.target.value.replace(/\D/g,''); }); });
+// Teléfono: solo enteros (NO incluye area ya — area acepta decimal)
+['telefono'].forEach(id=>{ $(id).addEventListener('input',e=>{ e.target.value=e.target.value.replace(/\D/g,''); }); });
+
+// Área: acepta decimal (punto o coma, un solo decimal). Mismo patrón que edad en bovinos.
+$('area').addEventListener('input', e=>{
+  let v = String(e.target.value||'').replace(',', '.').replace(/[^0-9.]/g, '');
+  const partes = v.split('.');
+  if(partes.length>2) v = partes[0] + '.' + partes.slice(1).join('');
+  e.target.value = v;
+});
+
 function fmtMiles(v){ const n=String(v).replace(/\D/g,''); return n?Number(n).toLocaleString('es-CO'):''; }
 $('precio').addEventListener('input',e=>{ e.target.value=fmtMiles(e.target.value); });
 
@@ -288,6 +298,13 @@ $('fotosPrev').onclick=e=>{ const b=e.target.closest('.rm'); if(!b)return; fotos
 $('videosPrev').onclick=e=>{ const b=e.target.closest('.rm'); if(!b)return; videosArr.splice(+b.dataset.i,1); refVideos(); };
 
 function num(v){ return String(v||'').replace(/\D/g,''); }
+// Convierte texto a número decimal (acepta punto o coma). Devuelve null si vacío/invalido.
+function numDecimal(v){
+  const s = String(v||'').replace(',', '.').trim();
+  if(!s) return null;
+  const n = parseFloat(s);
+  return (isNaN(n) || n<=0) ? null : n;
+}
 function titleCase(s){ return s.trim().toLowerCase().replace(/(^|\s)\p{L}/gu,m=>m.toUpperCase()); }
 function capFirst(s){ s=s.trim(); return s?s.charAt(0).toUpperCase()+s.slice(1):s; }
 
@@ -328,7 +345,8 @@ $('enviar').addEventListener('click', async ()=>{
   const juridicaFinal = $('juridica').value==='Otro' ? capFirst($('juridica_otro').value) : $('juridica').value;
   const viasFinal = $('vias').value==='Otro' ? capFirst($('vias_otro').value) : $('vias').value;
   const aguaFinal = aguaFinalStr();
-  const r={ estado:'Pendiente', tipo:tipoFinal, area:num($('area').value), area_unidad:$('area_unidad').value,
+  const areaFinal = numDecimal($('area').value);
+  const r={ estado:'Pendiente', tipo:tipoFinal, area:areaFinal, area_unidad:$('area_unidad').value,
     departamento:$('departamento').value, municipio:titleCase($('municipio').value), vereda:titleCase($('vereda').value),
     negocio:$('negocio').value, precio_modo:modoFinal, precio:num($('precio').value),
     juridica:juridicaFinal||null, agua:aguaFinal||null, energia:$('energia').value||null, vias:viasFinal||null, tiempo_pueblo:$('tiempo_pueblo').value||null,
@@ -338,7 +356,8 @@ $('enviar').addEventListener('click', async ()=>{
   if($('tipo').value==='Otro'&&!r.tipo)falta.push('cuál tipo');
   if(!$('juridica').value)falta.push('documentos');
   if($('juridica').value==='Otro'&&!juridicaFinal)falta.push('cuál documento');
-  if(!r.area)falta.push('área'); if(!r.departamento)falta.push('departamento');
+  if(!r.area || r.area<0.1)falta.push('área (mínimo 0.1)');
+  if(!r.departamento)falta.push('departamento');
   if(!r.municipio)falta.push('municipio'); if(!r.precio)falta.push('precio'); if(!r.telefono)falta.push('WhatsApp');
   if(fotosArr.length<1)falta.push('al menos 1 foto');
   if(falta.length){ $('err').textContent='Falta: '+falta.join(', ')+'.'; $('err').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); return; }
