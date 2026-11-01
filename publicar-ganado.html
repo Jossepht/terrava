@@ -183,8 +183,8 @@
     <div class="field"><label>Observaciones</label><textarea id="observaciones" rows="3" placeholder="Pon aquí tus observaciones — ej: vacunas al día, estado del lote, precio negociable… (se verá en la publicación completa)"></textarea></div>
 
     <div class="field wafield"><label>📱 Tu WhatsApp de contacto <span class="req">•</span></label>
-      <input id="telefono" inputmode="numeric" placeholder="Ej: 3001234567">
-      <div class="hint">A este número te escribirán los compradores interesados.</div></div>
+      <input id="telefono" inputmode="tel" placeholder="Ej: 3001234567 o +34612345678">
+      <div class="hint">A este número te escribirán los compradores interesados. Si tu número es de otro país, inclúyelo con el símbolo + y el indicativo (ej: +1 para EE.UU., +34 para España).</div></div>
 
     <div class="field"><label>Fotos (hasta 10) <span class="req">•</span></label>
       <div class="uploader"><button type="button" class="addbtn" id="addFotos">📷 Agregar fotos</button>
@@ -266,7 +266,19 @@ $('precio_modo').addEventListener('change',()=>{
   const m=$('precio_modo').value;
   $('precioLbl').innerHTML=(m==='Por kilo'?'Precio por kilo (COP)':m==='Por lote'?'Precio total del lote (COP)':'Precio por animal (COP)')+' <span class="req">•</span>';
 });
-['peso_kg','edad','cantidad','telefono'].forEach(id=>{ $(id).addEventListener('input',e=>{ e.target.value=e.target.value.replace(/\D/g,''); }); });
+// Campos numéricos puros (sin "+") — teléfono se maneja aparte abajo
+['peso_kg','edad','cantidad'].forEach(id=>{ $(id).addEventListener('input',e=>{ e.target.value=e.target.value.replace(/\D/g,''); }); });
+
+// Teléfono: acepta "+" SOLO al inicio, luego solo dígitos. Si se escribe "+" en medio, se ignora.
+function limpiarTel(valor){
+  let v = String(valor||'');
+  const empiezaPlus = v.trim().startsWith('+');
+  // Quita todo lo que no sea dígito
+  const soloDigitos = v.replace(/\D/g,'');
+  return (empiezaPlus ? '+' : '') + soloDigitos;
+}
+$('telefono').addEventListener('input', e=>{ e.target.value = limpiarTel(e.target.value); });
+
 // Edad: alterna entre input numérico (Meses) y dropdown de rangos (Años)
 function aplicarEdadUnidad(){
   const u=$('edad_unidad').value;
@@ -296,6 +308,17 @@ $('fotosPrev').onclick=e=>{ const b=e.target.closest('.rm'); if(!b)return; fotos
 $('videosPrev').onclick=e=>{ const b=e.target.closest('.rm'); if(!b)return; videosArr.splice(+b.dataset.i,1); refVideos(); };
 
 function num(v){ return String(v||'').replace(/\D/g,''); }
+// Teléfono: preserva "+" al inicio, el resto solo dígitos. Devuelve string listo para BD.
+function numTelefono(v){
+  const s = String(v||'').trim();
+  const empiezaPlus = s.startsWith('+');
+  const soloDigitos = s.replace(/\D/g,'');
+  return (empiezaPlus && soloDigitos.length>0 ? '+' : '') + soloDigitos;
+}
+// Cuenta dígitos efectivos (sin "+"). Útil para validar longitud mínima.
+function digitosTelefono(telNormalizado){
+  return String(telNormalizado||'').replace(/\D/g,'').length;
+}
 function titleCase(s){ return s.trim().toLowerCase().replace(/(^|\s)\p{L}/gu,m=>m.toUpperCase()); }
 function capFirst(s){ s=s.trim(); return s?s.charAt(0).toUpperCase()+s.slice(1):s; }
 
@@ -311,6 +334,8 @@ function restoreDraft(o){
   ['categoria_otro','raza','peso_kg','edad','edad_rango','edad_unidad','cantidad','departamento','municipio','precio_modo','precio','observaciones','telefono'].forEach(id=>{ if($(id)&&o[id]!=null)$(id).value=o[id]; });
   if(o.cantidad_reservada!=null) $('cantidad_reservada').checked=!!o.cantidad_reservada;
   $('precio').value=fmtMiles($('precio').value);
+  // Normalizar teléfono restaurado (puede traer "+" si así se guardó)
+  $('telefono').value=limpiarTel($('telefono').value);
   $('precio_modo').dispatchEvent(new Event('change'));
   aplicarEdadUnidad();
 }
@@ -337,6 +362,7 @@ $('enviar').addEventListener('click', async ()=>{
   const uEdad=$('edad_unidad').value;
   const edadNum = uEdad==='Meses' ? (num($('edad').value) ? parseInt(num($('edad').value),10) : null) : null;
   const edadRango = uEdad==='Años' ? ($('edad_rango').value || null) : null;
+  const telFinal = numTelefono($('telefono').value);
   const r={ estado:'Pendiente', tipo:$('tipo').value, sexo:$('sexo').value,
     estado_repro:$('sexo').value==='Hembra'?$('estado_repro').value:'No aplica',
     categoria:catFinal, raza:capFirst($('raza').value),
@@ -344,7 +370,7 @@ $('enviar').addEventListener('click', async ()=>{
     cantidad:num($('cantidad').value), cantidad_reservada:$('cantidad_reservada').checked,
     departamento:$('departamento').value, municipio:titleCase($('municipio').value),
     precio_modo:$('precio_modo').value, precio:num($('precio').value),
-    observaciones:$('observaciones').value.trim()||'Ninguna', telefono:num($('telefono').value), chat_id:num($('telefono').value) };
+    observaciones:$('observaciones').value.trim()||'Ninguna', telefono:telFinal, chat_id:telFinal };
   const falta=[];
   if(!r.tipo)falta.push('tipo'); if(!r.sexo)falta.push('sexo');
   if(r.sexo==='Hembra'&&!r.estado_repro)falta.push('estado de la hembra');
@@ -355,7 +381,10 @@ $('enviar').addEventListener('click', async ()=>{
   if(uEdad==='Meses' && !r.edad) falta.push('edad');
   if(uEdad==='Años' && !r.edad_rango) falta.push('rango de edad');
   if(!r.departamento)falta.push('departamento'); if(!r.municipio)falta.push('municipio');
-  if(!r.precio)falta.push('precio'); if(!r.telefono)falta.push('WhatsApp'); if(fotosArr.length<1)falta.push('al menos 1 foto');
+  if(!r.precio)falta.push('precio');
+  // Validación teléfono: mínimo 7 dígitos (acepta formato colombiano 10 dígitos y extranjeros con "+")
+  if(!r.telefono || digitosTelefono(r.telefono)<7) falta.push('WhatsApp (mínimo 7 dígitos)');
+  if(fotosArr.length<1)falta.push('al menos 1 foto');
   if(falta.length){ $('err').textContent='Falta: '+falta.join(', ')+'.'; $('err').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); return; }
 
   $('enviar').disabled=true;

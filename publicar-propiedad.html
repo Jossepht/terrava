@@ -190,8 +190,8 @@
       <textarea id="observaciones" rows="3" placeholder="Pon aquí tus observaciones — ej: aguas, pastos, infraestructura, vías de acceso, distancia a la cabecera… (se verá en la publicación completa)"></textarea></div>
 
     <div class="field wafield"><label>📱 Tu WhatsApp de contacto <span class="req">•</span></label>
-      <input id="telefono" inputmode="numeric" placeholder="Ej: 3001234567">
-      <div class="hint">A este número te escribirán los interesados.</div></div>
+      <input id="telefono" inputmode="tel" placeholder="Ej: 3001234567 o +34612345678">
+      <div class="hint">A este número te escribirán los interesados. Si tu número es de otro país, inclúyelo con el símbolo + y el indicativo (ej: +1 para EE.UU., +34 para España).</div></div>
 
     <div class="field"><label>Fotos (hasta 10) <span class="req">•</span></label>
       <div class="uploader"><button type="button" class="addbtn" id="addFotos">📷 Agregar fotos</button>
@@ -272,8 +272,14 @@ $('precio_modo').addEventListener('change',updatePrecioTextos);
 $('negocio').addEventListener('change',updatePrecioTextos);
 refreshPrecioModo();
 
-// Teléfono: solo enteros (NO incluye area ya — area acepta decimal)
-['telefono'].forEach(id=>{ $(id).addEventListener('input',e=>{ e.target.value=e.target.value.replace(/\D/g,''); }); });
+// Teléfono: acepta "+" SOLO al inicio, luego solo dígitos. Si se escribe "+" en medio, se ignora.
+function limpiarTel(valor){
+  let v = String(valor||'');
+  const empiezaPlus = v.trim().startsWith('+');
+  const soloDigitos = v.replace(/\D/g,'');
+  return (empiezaPlus ? '+' : '') + soloDigitos;
+}
+$('telefono').addEventListener('input', e=>{ e.target.value = limpiarTel(e.target.value); });
 
 // Área: acepta decimal (punto o coma, un solo decimal). Mismo patrón que edad en bovinos.
 $('area').addEventListener('input', e=>{
@@ -298,6 +304,17 @@ $('fotosPrev').onclick=e=>{ const b=e.target.closest('.rm'); if(!b)return; fotos
 $('videosPrev').onclick=e=>{ const b=e.target.closest('.rm'); if(!b)return; videosArr.splice(+b.dataset.i,1); refVideos(); };
 
 function num(v){ return String(v||'').replace(/\D/g,''); }
+// Teléfono: preserva "+" al inicio, el resto solo dígitos. Devuelve string listo para BD.
+function numTelefono(v){
+  const s = String(v||'').trim();
+  const empiezaPlus = s.startsWith('+');
+  const soloDigitos = s.replace(/\D/g,'');
+  return (empiezaPlus && soloDigitos.length>0 ? '+' : '') + soloDigitos;
+}
+// Cuenta dígitos efectivos (sin "+"). Útil para validar longitud mínima.
+function digitosTelefono(telNormalizado){
+  return String(telNormalizado||'').replace(/\D/g,'').length;
+}
 // Convierte texto a número decimal (acepta punto o coma). Devuelve null si vacío/invalido.
 function numDecimal(v){
   const s = String(v||'').replace(',', '.').trim();
@@ -316,6 +333,8 @@ function restoreDraft(o){
   if(o.area_unidad!=null)$('area_unidad').value=o.area_unidad; refreshPrecioModo();
   ['tipo','tipo_otro','area','departamento','municipio','vereda','negocio','precio_modo','precio','juridica','juridica_otro','vias','vias_otro','energia','tiempo_pueblo','agua_estado','agua_fuente','observaciones','telefono'].forEach(id=>{ if($(id)&&o[id]!=null)$(id).value=o[id]; });
   toggleTipoOtro(); updatePrecioTextos(); $('precio').value=fmtMiles($('precio').value);
+  // Normalizar teléfono restaurado (puede traer "+" si así se guardó)
+  $('telefono').value=limpiarTel($('telefono').value);
   $('juridicaOtroField').classList.toggle('hidden',$('juridica').value!=='Otro');
   $('viasOtroField').classList.toggle('hidden',$('vias').value!=='Otro');
   $('aguaFuenteField').classList.toggle('hidden',$('agua_estado').value!=='Sí tiene agua');
@@ -346,11 +365,12 @@ $('enviar').addEventListener('click', async ()=>{
   const viasFinal = $('vias').value==='Otro' ? capFirst($('vias_otro').value) : $('vias').value;
   const aguaFinal = aguaFinalStr();
   const areaFinal = numDecimal($('area').value);
+  const telFinal = numTelefono($('telefono').value);
   const r={ estado:'Pendiente', tipo:tipoFinal, area:areaFinal, area_unidad:$('area_unidad').value,
     departamento:$('departamento').value, municipio:titleCase($('municipio').value), vereda:titleCase($('vereda').value),
     negocio:$('negocio').value, precio_modo:modoFinal, precio:num($('precio').value),
     juridica:juridicaFinal||null, agua:aguaFinal||null, energia:$('energia').value||null, vias:viasFinal||null, tiempo_pueblo:$('tiempo_pueblo').value||null,
-    observaciones:$('observaciones').value.trim()||'Ninguna', telefono:num($('telefono').value), chat_id:num($('telefono').value) };
+    observaciones:$('observaciones').value.trim()||'Ninguna', telefono:telFinal, chat_id:telFinal };
   const falta=[];
   if(!$('tipo').value)falta.push('tipo');
   if($('tipo').value==='Otro'&&!r.tipo)falta.push('cuál tipo');
@@ -358,7 +378,8 @@ $('enviar').addEventListener('click', async ()=>{
   if($('juridica').value==='Otro'&&!juridicaFinal)falta.push('cuál documento');
   if(!r.area || r.area<0.1)falta.push('área (mínimo 0.1)');
   if(!r.departamento)falta.push('departamento');
-  if(!r.municipio)falta.push('municipio'); if(!r.precio)falta.push('precio'); if(!r.telefono)falta.push('WhatsApp');
+  if(!r.municipio)falta.push('municipio'); if(!r.precio)falta.push('precio');
+  if(!r.telefono || digitosTelefono(r.telefono)<7) falta.push('WhatsApp (mínimo 7 dígitos)');
   if(fotosArr.length<1)falta.push('al menos 1 foto');
   if(falta.length){ $('err').textContent='Falta: '+falta.join(', ')+'.'; $('err').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); return; }
 

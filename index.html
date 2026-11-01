@@ -366,7 +366,17 @@ const fotosDe=a=>a.fotos?a.fotos.split(',').map(s=>s.trim()).filter(Boolean):[];
 const videosDe=a=>a.videos?a.videos.split(',').map(s=>s.trim()).filter(Boolean):[];
 // Miniatura: temporalmente devuelve la original (se revirtió la transformación; se probará luego con calma)
 function miniUrl(url,w){ return url||''; }
-const waNum=t=>{ t=String(t||'').replace(/\D/g,''); return t.length===10?'57'+t:t; };
+// waNum: devuelve el número listo para wa.me (sin el "+").
+// - Si el valor empieza con "+", quita el "+" y devuelve solo dígitos (ya trae indicativo).
+// - Si tiene exactamente 10 dígitos sin "+", asume número colombiano y antepone "57".
+// - Cualquier otro caso (otros países sin "+" como ya se guardaron), devuelve solo dígitos.
+const waNum=t=>{
+  const s = String(t||'').trim();
+  const empiezaPlus = s.startsWith('+');
+  const soloDigitos = s.replace(/\D/g,'');
+  if(empiezaPlus) return soloDigitos;
+  return soloDigitos.length===10 ? '57'+soloDigitos : soloDigitos;
+};
 function haceCuanto(fecha){
   if(!fecha) return '';
   const s=(Date.now()-new Date(fecha).getTime())/1000;

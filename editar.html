@@ -149,7 +149,8 @@
       <input id="videosInput" type="file" accept="video/*" multiple class="hidden"></div>
 
     <div class="wafield field"><label>📱 Tu WhatsApp de contacto <span class="req">•</span></label>
-      <input id="telefono" inputmode="numeric"></div>
+      <input id="telefono" inputmode="tel" placeholder="Ej: 3001234567 o +34612345678">
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">Si tu número es de otro país, inclúyelo con el símbolo + y el indicativo (ej: +1 para EE.UU., +34 para España).</div></div>
 
     <div class="msg err" id="err"></div>
 
@@ -190,6 +191,24 @@ const DEPS=['Amazonas','Antioquia','Arauca','Atlántico','Bolívar','Boyacá','C
 let DATA=null, fotosExist=[], videosExist=[], fotosNew=[], videosNew=[];
 
 const num=v=>String(v||'').replace(/\D/g,'');
+// Teléfono: preserva "+" al inicio, el resto solo dígitos. Devuelve string listo para BD.
+function numTelefono(v){
+  const s = String(v||'').trim();
+  const empiezaPlus = s.startsWith('+');
+  const soloDigitos = s.replace(/\D/g,'');
+  return (empiezaPlus && soloDigitos.length>0 ? '+' : '') + soloDigitos;
+}
+// Cuenta dígitos efectivos (sin "+"). Útil para validar longitud mínima.
+function digitosTelefono(telNormalizado){
+  return String(telNormalizado||'').replace(/\D/g,'').length;
+}
+// Listener del input de teléfono: acepta "+" solo al inicio, luego solo dígitos.
+function limpiarTelInput(valor){
+  let v = String(valor||'');
+  const empiezaPlus = v.trim().startsWith('+');
+  const soloDigitos = v.replace(/\D/g,'');
+  return (empiezaPlus ? '+' : '') + soloDigitos;
+}
 // Convierte texto a número decimal (acepta punto o coma). Devuelve null si vacío/invalido.
 function numDecimal(v){
   const s = String(v||'').replace(',', '.').trim();
@@ -217,6 +236,8 @@ async function init(){
   $('codLbl').textContent=DATA.codigo||'';
   if(DATA.codigo) $('verEnCatalogo').href='https://terrava.com.co/#'+encodeURIComponent(DATA.codigo);
   $('telefono').value=DATA.telefono||'';
+  // Listener del teléfono: acepta "+" solo al inicio
+  $('telefono').addEventListener('input', e=>{ e.target.value = limpiarTelInput(e.target.value); });
   if(TABLA==='avisos') fieldsBovino(); else fieldsPropiedad();
   wireMedia();
 }
@@ -413,7 +434,7 @@ $('enviar').addEventListener('click', async ()=>{
       cantidad:num($('cantidad').value), cantidad_reservada: !!$('cantidad_reservada').checked,
       departamento:$('departamento').value, municipio:titleCase($('municipio').value),
       precio_modo:$('precio_modo').value, precio:num($('precio').value),
-      observaciones:$('observaciones').value.trim()||'Ninguna', telefono:num($('telefono').value) };
+      observaciones:$('observaciones').value.trim()||'Ninguna', telefono:numTelefono($('telefono').value) };
     if(!p.tipo)falta.push('tipo'); if(!p.categoria)falta.push('categoría'); if(!p.raza)falta.push('raza');
     if(!p.peso_kg)falta.push('peso'); if(!p.cantidad)falta.push('cantidad');
     if(uEdad==='Meses' && !p.edad) falta.push('edad');
@@ -426,13 +447,13 @@ $('enviar').addEventListener('click', async ()=>{
     p={ tipo:tipoFinal, area:areaFinal, area_unidad:$('area_unidad').value,
       departamento:$('departamento').value, municipio:titleCase($('municipio').value), vereda:titleCase($('vereda').value),
       negocio:$('negocio').value, precio_modo:modoFinal, precio:num($('precio').value),
-      observaciones:$('observaciones').value.trim()||'Ninguna', telefono:num($('telefono').value) };
+      observaciones:$('observaciones').value.trim()||'Ninguna', telefono:numTelefono($('telefono').value) };
     if(!p.tipo)falta.push('tipo');
     if(!p.area || p.area<0.1) falta.push('área (mínimo 0.1)');
     if(!p.departamento)falta.push('departamento');
     if(!p.municipio)falta.push('municipio'); if(!p.precio)falta.push('precio');
   }
-  if(!p.telefono)falta.push('WhatsApp');
+  if(!p.telefono || digitosTelefono(p.telefono)<7) falta.push('WhatsApp (mínimo 7 dígitos)');
   if(fotosExist.length+fotosNew.length<1)falta.push('al menos 1 foto');
   if(falta.length){ $('err').textContent='Falta: '+falta.join(', ')+'.'; $('err').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); return; }
 

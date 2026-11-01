@@ -50,10 +50,11 @@
   .summary{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:14.5px}
   .summary b{color:var(--pasto);font-weight:700}
 
-  .tabs{display:flex;gap:5px;margin-bottom:16px;padding-bottom:2px;flex-wrap:wrap}
-  .tab{flex:1 1 90px;min-width:0;background:#fff;border:1px solid var(--linea);color:var(--pasto);font-family:'Manrope';padding:8px 6px;border-radius:22px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.15;text-align:center}
-  .tab .tab-label{font-size:11.5px;font-weight:600;white-space:nowrap}
-  .tab .tab-count{font-size:10.5px;font-weight:700;opacity:.75}
+  /* Pestañas: grid de 3 columnas (3 arriba, 3 abajo, etc. a futuro) */
+  .tabs{display:grid;grid-template-columns:repeat(3, 1fr);gap:7px;margin-bottom:16px;padding-bottom:2px}
+  .tab{min-width:0;background:#fff;border:1px solid var(--linea);color:var(--pasto);font-family:'Manrope';padding:10px 8px;border-radius:14px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1.2;text-align:center}
+  .tab .tab-label{font-size:13px;font-weight:600;white-space:nowrap}
+  .tab .tab-count{font-size:11.5px;font-weight:700;opacity:.75}
   .tab.active{background:var(--oro);border-color:var(--oro);color:#241a08}
   .tab.active .tab-count{opacity:1}
   .tab:hover:not(.active){background:rgba(194,138,48,.08)}
@@ -117,9 +118,9 @@
     .htitle h1{font-size:18px;letter-spacing:.10em}
     .htitle p{font-size:9.5px}
     .stamp{width:40px;height:40px;padding:1px}
-    .tab{padding:7px 3px;flex:1 1 70px}
-    .tab .tab-label{font-size:10px}
-    .tab .tab-count{font-size:9.5px}
+    .tab{padding:9px 5px;border-radius:12px}
+    .tab .tab-label{font-size:12px}
+    .tab .tab-count{font-size:10.5px}
     header{padding:12px 0 10px}
     .contactosBar .filas{gap:6px}
     .contactosBar select{font-size:11.5px;min-width:0;flex:1 1 auto}
@@ -171,7 +172,17 @@
 <script>
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
-const waNum=t=>{ t=String(t||'').replace(/\D/g,''); return t.length===10?'57'+t:t; };
+// waNum: devuelve el número listo para wa.me (sin el "+").
+// - Si el valor empieza con "+", quita el "+" y devuelve solo dígitos (ya trae indicativo).
+// - Si tiene exactamente 10 dígitos sin "+", asume número colombiano y antepone "57".
+// - Cualquier otro caso, devuelve solo dígitos.
+const waNum=t=>{
+  const s = String(t||'').trim();
+  const empiezaPlus = s.startsWith('+');
+  const soloDigitos = s.replace(/\D/g,'');
+  if(empiezaPlus) return soloDigitos;
+  return soloDigitos.length===10 ? '57'+soloDigitos : soloDigitos;
+};
 let AV=[], PR=[], cat='bovinos';
 // CLICKS: { codigo: [ts1, ts2, ts3, ...] }  — guardamos timestamps para filtrar por rango
 let CLICKS={};
